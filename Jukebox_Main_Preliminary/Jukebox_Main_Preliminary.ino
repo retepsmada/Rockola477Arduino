@@ -10,7 +10,7 @@ int
 int unitsPerPlay //Pricing for a single song
 int unitMemory //Set equal to the amount of money that has been put in, subtract minimumMoney when a selection is succesfully made
 int 
-
+//Don't know how to impliment bonus options, where if one play is 25 cents then 2 is 45
 
 //Pin Variables
 int buttonAddUnit = 1//This is defined as the smallest coin that can be deposited, so a nickel-may change this later
@@ -50,6 +50,14 @@ void setup(){
   pinMode(controlHome, INPUT)
   pinMode(controlScan, OUTPUT)
   pinMode(controlStartSpin, OUTPUT)
+  pinMode(controlStopSpin. OUTPUT)
+  pinMode(controlPulse, INPUT)
+  pinMode(buttonTest, INPUT)
+  pinMode(buttonAddPlay, INPUT)
+  pinMode(buttonSubPlay, INPUT)
+  pinMode(buttonClear, INPUT)
+  pinMode(buttonAddUnit, INPUT)
+  pinMode(
 }
 
 
