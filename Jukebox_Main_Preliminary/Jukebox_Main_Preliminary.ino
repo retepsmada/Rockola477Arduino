@@ -5,7 +5,7 @@
 
 
 //Other Variables 
-int unitsPerPlay //Pricing for a single song
+#define unitsPerPlay //Pricing for a single song
 int unitMemory //Set equal to the amount of money that has been put in, subtract minimumMoney when a selection is succesfully made
 //Don't know how to impliment bonus options, where if one play is 25 cents then 2 is 45
 
@@ -28,7 +28,7 @@ int unitMemory //Set equal to the amount of money that has been put in, subtract
 //Pins A4 and A5 are automaticaly selected for use with the I2C displays
 #define ledYourSelection 16//Take high when the selection display is showing the selection just made
 #define ledRecordPlaying 17//Take high when the selection display is showing the record that is currently playing
-#define ledAddCoins 18//Take high if a button is pressed and creditIn is less than minimumMoney
+#define ledAddCoins 18//Take high for a certain amount of time if a button is pressed and unitMemory is less than unitsPerPlay
 #define ledResetReselect 19//Take high when the reset button is pressed and keep high until annother button is pressed
 
 //will probobly get multiplexing board for 7 pin keyboard
@@ -54,9 +54,30 @@ void setup(){
   pinMode(buttonSubPlay, INPUT)
   pinMode(buttonClear, INPUT)
   pinMode(buttonAddUnit, INPUT)
-  pinMode()
 }
 
 
 void loop(){
-  if(
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
