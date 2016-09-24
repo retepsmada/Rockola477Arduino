@@ -4,10 +4,12 @@
 #include <gfxfont.h>
 
 
-//Other Variables 
+//Other Variables
 #define unitsPerPlay //Pricing for a single song
-int unitMemory //Set equal to the amount of money that has been put in, subtract minimumMoney when a selection is succesfully made
+
+//unitMemory: Set equal to the amount of money that has been put in, subtract minimumMoney when a selection is succesfully made
 //Don't know how to impliment bonus options, where if one play is 25 cents then 2 is 45
+int unitMemory;
 
 //Pin Variables
 #define buttonAddUnit 1//This is defined as the smallest coin that can be deposited, so a nickel-may change this later
@@ -35,49 +37,28 @@ int unitMemory //Set equal to the amount of money that has been put in, subtract
 
 
 void setup(){
-  pinMode(ledResetReselect, OUTPUT)
-  pinMode(ledAddCoins, OUTPUT)
-  pinMode(ledRecordPlaying, OUTPUT)
-  pinMode(ledYourSelection, OUTPUT)
-  pinMode(dime, INPUT)
-  pinMode(nickel, INPUT)
-  pinMode(quarter, INPUT)
-  pinMode(halfDollar, INPUT)
-  pinMode(controlSide, INPUT)
-  pinMode(controlHome, INPUT)
-  pinMode(controlScan, OUTPUT)
-  pinMode(controlStartSpin, OUTPUT)
-  pinMode(controlStopSpin. OUTPUT)
-  pinMode(controlPulse, INPUT)
-  pinMode(buttonTest, INPUT)
-  pinMode(buttonAddPlay, INPUT)
-  pinMode(buttonSubPlay, INPUT)
-  pinMode(buttonClear, INPUT)
-  pinMode(buttonAddUnit, INPUT)
+    pinMode(ledResetReselect, OUTPUT);
+    pinMode(ledAddCoins, OUTPUT);
+    pinMode(ledRecordPlaying, OUTPUT);
+    pinMode(ledYourSelection, OUTPUT);
+    pinMode(dime, INPUT);
+    pinMode(nickel, INPUT);
+    pinMode(quarter, INPUT);
+    pinMode(halfDollar, INPUT);
+    pinMode(controlSide, INPUT);
+    pinMode(controlHome, INPUT);
+    pinMode(controlScan, OUTPUT);
+    pinMode(controlStartSpin, OUTPUT);
+    pinMode(controlStopSpin, OUTPUT);
+    pinMode(controlPulse, INPUT);
+    pinMode(buttonTest, INPUT);
+    pinMode(buttonAddPlay, INPUT);
+    pinMode(buttonSubPlay, INPUT);
+    pinMode(buttonClear, INPUT);
+    pinMode(buttonAddUnit, INPUT);
 }
 
 
 void loop(){
   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
