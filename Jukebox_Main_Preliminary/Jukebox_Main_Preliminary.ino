@@ -2,7 +2,7 @@
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
 #include <gfxfont.h>
-
+#include <SparkFunSX1509.h>
 //Set equal to the amount of money that has been put in, subtract minimumMoney when a selection is succesfully made
 //int unitMemory;
 //Don't know how to impliment bonus options, where if one play is 25 cents then 2 is 45
@@ -42,11 +42,11 @@ SX1509 io; // Create an SX1509 object to be used throughout
 #define KEY_COLS 4 // Number of columns in the keypad matrix
 
 // keyMap maps row/column combinations to characters:
-char keyMap[KEY_ROWS][KEY_COLS] = {
-{ '2', ' ', '7', 'R'},
-{ '1', '4', '6', '9'},
-{ '0', '3', '5', '8'},
-{ 'N', 'D', 'Q', 'F'}};
+int keyMap[KEY_ROWS][KEY_COLS] = {
+{ 2, 10, 7, 11},
+{ 1, 4, 6, 9},
+{ 0, 3, 5, 8},
+{ 12, 13, 14, 15}};
 
 const byte ARDUINO_INTERRUPT_PIN = 2;
 
@@ -65,8 +65,8 @@ void setup(){
   pinMode(controlStopSpin, OUTPUT);
   pinMode(controlPulse, INPUT);
   
-  creditDisplay.begin();
-  selectionDisplay.begin();
+  creditDisplay.begin(0x70);
+  selectionDisplay.begin(0x71);
 
  
   if (!io.begin(SX1509_ADDRESS))
@@ -90,14 +90,14 @@ void setup(){
 }
 
 // Compared to the keypad in keypad.ino, this keypad example
-// is a bit more advanced. We'll use these varaibles to check
+// is a bit more advanced. We'll use these variables to check
 // if a key is being held down, or has been released. Then we
 // can kind of emulate the operation of a computer keyboard.
 unsigned int previousKeyData = 0; // Stores last key pressed
 unsigned int holdCount, releaseCount = 0; // Count durations
 const unsigned int holdCountMax = 15; // Key hold limit
 const unsigned int releaseCountMax = 100; // Release limit
-}
+
 
 void loop(){
     // If the SX1509 INT pin goes low, a keypad button has
@@ -112,7 +112,7 @@ void loop(){
     byte col = io.getCol(keyData);
   // Then plug row and column into keyMap to get which
   // key was pressed.
-    char key = keyMap[row][col];
+    int key = keyMap[row][col];
     
   // If it's a new key pressed
     if (keyData != previousKeyData)
