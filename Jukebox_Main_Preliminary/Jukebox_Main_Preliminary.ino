@@ -53,7 +53,29 @@ const byte ARDUINO_INTERRUPT_PIN = 2;
 Adafruit_7segment creditDisplay = Adafruit_7segment();
 Adafruit_7segment selectionDisplay = Adafruit_7segment();
 
-void setup(){
+void clearCreditDisplay(){
+  creditDisplay.writeDigitRaw(0,0);
+  creditDisplay.writeDigitRaw(1,0);
+  creditDisplay.writeDigitRaw(2,0);
+  creditDisplay.writeDigitRaw(3,0);
+  creditDisplay.writeDigitRaw(4,0);
+  creditDisplay.writeDisplay();
+}
+
+void clearSelectionDisplay(){
+  selectionDisplay.writeDigitRaw(0,0);
+  selectionDisplay.writeDigitRaw(1,0);
+  selectionDisplay.writeDigitRaw(2,0);
+  selectionDisplay.writeDigitRaw(3,0);
+  selectionDisplay.writeDigitRaw(4,0);
+  selectionDisplay.writeDisplay();
+}
+
+void setup()
+{
+  Serial.begin(9600);
+  Serial.print("Tast.mp3");
+  
   pinMode(ledResetReselect, OUTPUT);
   pinMode(ledAddCoins, OUTPUT);
   pinMode(ledRecordPlaying, OUTPUT);
@@ -65,8 +87,8 @@ void setup(){
   pinMode(controlStopSpin, OUTPUT);
   pinMode(controlPulse, INPUT);
   
-  creditDisplay.begin(0x70);
-  selectionDisplay.begin(0x71);
+  creditDisplay.begin(0x71);
+  selectionDisplay.begin(0x70);
 
  
   if (!io.begin(SX1509_ADDRESS))
@@ -97,7 +119,7 @@ unsigned int previousKeyData = 0; // Stores last key pressed
 unsigned int holdCount, releaseCount = 0; // Count durations
 const unsigned int holdCountMax = 15; // Key hold limit
 const unsigned int releaseCountMax = 100; // Release limit
-int creditDisplayCount = 1; //What display digit we're currently on
+int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
     // If the SX1509 INT pin goes low, a keypad button has
@@ -117,14 +139,18 @@ void loop(){
   // If it's a new key pressed
     if (keyData != previousKeyData)
     {
+      holdCount = 0;
       if(key == 11){
-        clearCreditDisplay();
-        creditDisplayCount = 1;
+        clearSelectionDisplay();
+        selectionDisplayCount = 1;
       }
-      else if (key < 10 && key >= 0 && creditDisplayCount < 3){
-        creditDisplay.writeDigitNum(key,creditDisplayCount);
-        ++creditDisplayCount;
-        if(creditDisplayCount == 2){++creditDisplayCount;}
+      else if (key < 10 && key >= 0 && selectionDisplayCount <= 4){
+       selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+        selectionDisplay.writeDisplay();
+        Serial.print(key);
+        ++selectionDisplayCount;
+        if(selectionDisplayCount == 2){++selectionDisplayCount;}
+        delay(250);
       }
     }
     else // If the button's beging held down:
@@ -148,18 +174,4 @@ void loop(){
   }
 }
 
-void clearCreditDisplay(){
-  creditDisplay.writeDigitRaw(0,0);
-  creditDisplay.writeDigitRaw(1,0);
-  creditDisplay.writeDigitRaw(2,0);
-  creditDisplay.writeDigitRaw(3,0);
-  creditDisplay.writeDigitRaw(4,0);
-}
 
-void clearSelectionDisplay(){
-  selectionDisplay.writeDigitRaw(0,0);
-  selectionDisplay.writeDigitRaw(1,0);
-  selectionDisplay.writeDigitRaw(2,0);
-  selectionDisplay.writeDigitRaw(3,0);
-  selectionDisplay.writeDigitRaw(4,0);
-}
