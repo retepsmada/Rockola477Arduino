@@ -3,9 +3,22 @@
 #include <Adafruit_GFX.h>
 #include <gfxfont.h>
 #include <SparkFunSX1509.h>
+
+//This is a datatype that can be either "A" or "B".
+enum side { A, B };
+typedef enum side side;
+//This is a datatype representing a record.
+//It has both a side and a record number.
+typedef struct {
+    side side;
+    int num;
+} record;
+
 //Set equal to the amount of money that has been put in, subtract minimumMoney when a selection is succesfully made
 //int unitMemory;
 //Don't know how to impliment bonus options, where if one play is 25 cents then 2 is 45
+
+int currentSelection = 0;
 
 //Pin Variables
 
@@ -22,6 +35,8 @@
 //Is low for side A and high for side B.
 //If you want B and it's A, just do one more full rotation
 #define controlSide 11
+//High when a record is playing
+#define recordPlaying 12
 
 //Pins A4 and A5 are automaticaly selected for use with the I2C displays and the multiplex board
 
@@ -71,6 +86,36 @@ void clearSelectionDisplay(){
   selectionDisplay.writeDisplay();
 }
 
+record makeRecord(int id) {
+    /**
+     * This function takes in a number assuming that:
+     * * It has three digits.
+     * * Its hundreds digit is 1 or 2.
+     * * Its tens digit is 0-9.
+     * * Its ones digit is 0-7.
+     * It then returns a record corresponding to that id number.
+    */
+    //First, compute the digits in id:
+    int digits[3];
+    for (int i = 0; i < 3; i++) {
+        //i % 10 always represents the ones digit of a number:
+        digits[i] = id % 10;
+        //Now, divide i by 10 to get rid of the last digit:
+        id /= 10;
+        /* This means that the next digit we add will be the digit right before the one we just added.
+           Thus, digits[0] is the ones digit,
+                 digits[1] is the tens digit,
+             and digits[2] is the hundreds digit. */
+    }
+    
+    record recordFromId;
+    //This sets the side to A if the hundreds digit is 1 and B otherwise.
+    recordFromId.side = (digits[2] == 1) ? A : B;
+    //This sets the record number to the ones digit times 10 plus the tens digit.
+    recordFromId.num = digits[0]*10+digits[1];
+    return recordFromId;
+}
+
 void setup()
 {
   Serial.begin(9600);
@@ -117,7 +162,7 @@ void setup()
 // can kind of emulate the operation of a computer keyboard.
 unsigned int previousKeyData = 0; // Stores last key pressed
 unsigned int holdCount, releaseCount = 0; // Count durations
-const unsigned int holdCountMax = 15; // Key hold limit
+const unsigned int holdCountMax = 5; // Key hold limit
 const unsigned int releaseCountMax = 100; // Release limit
 int selectionDisplayCount = 1; //What display digit we're currently on
 
@@ -143,11 +188,21 @@ void loop(){
       if(key == 11){
         clearSelectionDisplay();
         selectionDisplayCount = 1;
+        currentSelection = 0;
       }
       else if (key < 10 && key >= 0 && selectionDisplayCount <= 4){
        selectionDisplay.writeDigitNum(selectionDisplayCount, key);
         selectionDisplay.writeDisplay();
         Serial.print(key);
+        if(selectionDisplayCount == 1){
+          currentSelection = key * 100;
+       }
+       else if(selectionDisplayCount == 3){ //There's probably a better way to have the keys go into a three digit variable but I don't know it
+        currentSelection = currentSelection + (key * 10);
+       }
+       else{
+        currentSelection = key + currentSelection;
+       }
         ++selectionDisplayCount;
         if(selectionDisplayCount == 2){++selectionDisplayCount;}
         delay(250);
