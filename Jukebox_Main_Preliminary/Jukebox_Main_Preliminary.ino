@@ -17,12 +17,12 @@ typedef struct {
 //Set equal to the amount of money that has been put in, subtract minimumMoney when a selection is succesfully made
 //int unitMemory;
 //Don't know how to impliment bonus options, where if one play is 25 cents then 2 is 45
-int pulseCount = 0;
-int currentSelection = 0;
-int nextRecord = 0;
-int currentState = 0;
-int lastState = 0;
-int errorValue = 0;
+
+int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
+int currentSelection = 0;//Current record displayed on screen
+int currentState = 0; //Curent state of pulse pin
+int lastState = 0;//Last state of pulse pin
+int errorValue = 0;//used to detect if there has been a mechanical error
 //Pin Variables
 
 //Count pulses from opto encoder on carousel until the correct record is reached
@@ -256,6 +256,7 @@ void loop(){
        }
        else{
         currentSelection = key + currentSelection;
+        Serial.print(currentSelection);
        }
         ++selectionDisplayCount;
         if(selectionDisplayCount == 2){++selectionDisplayCount;}
