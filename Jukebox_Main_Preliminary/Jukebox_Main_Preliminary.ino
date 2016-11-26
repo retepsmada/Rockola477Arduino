@@ -14,10 +14,6 @@ typedef struct {
     int num;
 } record;
 
-//Set equal to the amount of money that has been put in, subtract minimumMoney when a selection is succesfully made
-//int unitMemory;
-//Don't know how to impliment bonus options, where if one play is 25 cents then 2 is 45
-
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
 int currentState = 0; //Curent state of pulse pin
@@ -89,36 +85,6 @@ void clearSelectionDisplay(){
   selectionDisplay.writeDisplay();
 }
 
-record makeRecord(int id) {
-    /**
-     * This function takes in a number assuming that:
-     * * It has three digits.
-     * * Its hundreds digit is 1 or 2.
-     * * Its tens digit is 0-9.
-     * * Its ones digit is 0-7.
-     * It then returns a record corresponding to that id number.
-    */
-    //First, compute the digits in id:
-    int digits[3];
-    for (int i = 0; i < 3; i++) {
-        //i % 10 always represents the ones digit of a number:
-        digits[i] = id % 10;
-        //Now, divide i by 10 to get rid of the last digit:
-        id /= 10;
-        /* This means that the next digit we add will be the digit right before the one we just added.
-           Thus, digits[0] is the ones digit,
-                 digits[1] is the tens digit,
-             and digits[2] is the hundreds digit. */
-    }
-    
-    record recordFromId;
-    //This sets the side to A if the hundreds digit is 1 and B otherwise.
-    recordFromId.side = (digits[2] == 1) ? A : B;
-    //This sets the record number to the ones digit times 10 plus the tens digit.
-    recordFromId.num = digits[0]*10+digits[1];
-    return recordFromId;
-}
-
 void recordSelect(int id){
    /**
      * This function takes in a number assuming that:
@@ -146,9 +112,8 @@ void recordSelect(int id){
     recordFromId.side = (digits[2] == 1) ? A : B;
     //This sets the record number to the ones digit times 10 plus the tens digit.
     recordFromId.num = digits[0]*10+digits[1];
-    return recordFromId;
     
-  if(recordFromId.side != digitalRead(controlSide)){
+  if ((recordFromId.side == A && digitalRead(controlSide) == HIGH) || (recordFromId.side == B && digitalRead(controlSide) == LOW)){
      digitalWrite(controlStartSpin, HIGH);
      do{
       delay(10);
@@ -160,15 +125,25 @@ void recordSelect(int id){
         delay(10);
         ++errorValue;
       }while(digitalRead(controlHome) != HIGH);
+      errorValue = 0;
   }
   digitalWrite(controlStartSpin, HIGH);
+     do{
+        delay(10);
+        ++errorValue;
+     }while(digitalRead(controlHome) != LOW);
+       digitalWrite(controlStartSpin, LOW);
+       errorValue = 0;
   while(recordFromId.num != pulseCount){
     currentState = digitalRead(controlPulse);
     if(currentState != lastState && currentState == HIGH){
-      ++pulseCount; 
+      ++pulseCount;
     }
     lastState = currentState;
   }
+  digitalWrite(controlStopSpin, HIGH);
+  delay(50);
+  digitalWrite(controlStopSpin, LOW);
 }
 
 void setup(){
