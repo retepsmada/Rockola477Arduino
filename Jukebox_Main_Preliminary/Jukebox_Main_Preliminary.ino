@@ -146,6 +146,10 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, LOW);
 }
 
+void creditCounter(int coint){
+  
+}
+
 void setup(){
   Serial.begin(9600);
   Serial.print("Tast.mp3");
@@ -164,7 +168,7 @@ void setup(){
   creditDisplay.begin(0x71);
   selectionDisplay.begin(0x70);
 
- 
+
   if (!io.begin(SX1509_ADDRESS))
   {
     while (1) ; // If we fail to communicate, loop forever.
