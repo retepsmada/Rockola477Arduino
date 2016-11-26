@@ -1,7 +1,6 @@
 #include <Wire.h>
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
-#include <gfxfont.h>
 #include <SparkFunSX1509.h>
 
 //This is a datatype that can be either "A" or "B".
@@ -146,7 +145,7 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, LOW);
 }
 
-void creditCounter(int coint){
+void creditCounter(int coin){
   
 }
 
@@ -164,6 +163,7 @@ void setup(){
   pinMode(controlStartSpin, OUTPUT);
   pinMode(controlStopSpin, OUTPUT);
   pinMode(controlPulse, INPUT);
+  pinMode(recordPlaying, INPUT);
   
   creditDisplay.begin(0x71);
   selectionDisplay.begin(0x70);
@@ -171,7 +171,7 @@ void setup(){
 
   if (!io.begin(SX1509_ADDRESS))
   {
-    while (1) ; // If we fail to communicate, loop forever.
+    while (1); // If we fail to communicate, loop forever.
   }
   
   // Scan time range: 1-128 ms, powers of 2
