@@ -114,7 +114,7 @@ void recordSelect(int id){
     //This sets the record number to the ones digit times 10 plus the tens digit.
     recordFromId.num = digits[0]*10+digits[1];
     
-  if ((recordFromId.side == A && digitalRead(controlSide) == HIGH) || (recordFromId.side == B && digitalRead(controlSide) == LOW)){
+  if ((recordFromId.side == 0 && digitalRead(controlSide) == HIGH) || (recordFromId.side == 1 && digitalRead(controlSide) == LOW)){
      digitalWrite(controlStartSpin, HIGH);
      do{
       delay(10);
