@@ -13,7 +13,7 @@
 #define controlSide 8
 //High when a record is playing
 #define recordPlaying 9
-#define pin 2
+#define pin 9
 //This is a datatype that can be either "A" or "B".
 enum side { A, B };
 typedef enum side side;
@@ -62,7 +62,7 @@ void recordSelect(int id){
     recordFromId.num = digits[0]*10+digits[1];
     Serial.print(recordFromId.side);
     Serial.print(recordFromId.num);
-  if ((recordFromId.side == 0 && digitalRead(controlSide) == 1) || (recordFromId.side == 1 && digitalRead(controlSide) == 0)){
+  if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))){
      digitalWrite(controlStartSpin, HIGH);
      while(digitalRead(controlHome) == 1);{
       Serial.print("1");
@@ -111,5 +111,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  recordSelect(167);
+  if(digitalRead(pin) == 1){
+    recordSelect(167);
+  }
 }
