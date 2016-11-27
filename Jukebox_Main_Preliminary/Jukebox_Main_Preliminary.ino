@@ -112,31 +112,19 @@ void recordSelect(int id){
     //This sets the side to A if the hundreds digit is 1 and B otherwise.
     recordFromId.side = (digits[2] == 1) ? A : B;
     //This sets the record number to the ones digit times 10 plus the tens digit.
-    recordFromId.num = digits[0]*10+digits[1];
+    recordFromId.num = digits[0]*10+digits[1]+1;
     
-  if ((recordFromId.side == 0 && digitalRead(controlSide) == HIGH) || (recordFromId.side == 1 && digitalRead(controlSide) == LOW)){
+  if ((recordFromId.side == 0 && digitalRead(controlSide) == 1) || (recordFromId.side == 1 && digitalRead(controlSide) == 0)){                //THIS DOESNT WORK 
      digitalWrite(controlStartSpin, HIGH);
-     do{
-      delay(10);
-      ++errorValue;
-     }while(digitalRead(controlHome) != LOW);
+     while(digitalRead(controlHome) != 0);
       digitalWrite(controlStartSpin, LOW);
-      errorValue = 0;
-      do{
-        delay(10);
-        ++errorValue;
-      }while(digitalRead(controlHome) != HIGH);
-      errorValue = 0;
+      while(digitalRead(controlHome) != 1);
   }
   digitalWrite(controlStartSpin, HIGH);
-     do{                        //need to change so that you can select a record at any time and so that you can add money at any time
-        delay(10);
-        ++errorValue;
-     }while(digitalRead(controlHome) != LOW);
-       digitalWrite(controlStartSpin, LOW);
-       errorValue = 0;
+    while(digitalRead(controlHome) != 0);
+    digitalWrite(controlStartSpin, LOW);
   while(recordFromId.num != pulseCount){
-    currentState = digitalRead(controlPulse);
+    currentState = digitalRead(controlPulse);// this works
     if(currentState != lastState && currentState == HIGH){
       ++pulseCount;
     }
