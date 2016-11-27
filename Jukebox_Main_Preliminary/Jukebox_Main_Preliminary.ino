@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
+#include <gfxfont.h>
 #include <SparkFunSX1509.h>
 
 //This is a datatype that can be either "A" or "B".
@@ -13,6 +14,7 @@ typedef struct {
     int num;
 } record;
 
+int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
 int currentState = 0; //Curent state of pulse pin
@@ -21,31 +23,31 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Pin Variables
 
 //Count pulses from opto encoder on carousel until the correct record is reached
-#define controlPulse 6
+#define controlPulse 3
 //Pulse to stop carosel spinning
-#define controlStopSpin 7
+#define controlStopSpin 4
 //Take high untill home is low to start spin
-#define controlStartSpin 8
+#define controlStartSpin 5
 //Take high to just rotate the carousel for record loading
-#define controlScan 9
+#define controlScan 6
 //Is high when the carousel is in the home position
-#define controlHome 10
+#define controlHome 7
 //Is low for side A and high for side B.
 //If you want B and it's A, just do one more full rotation
-#define controlSide 11
+#define controlSide 8
 //High when a record is playing
-#define recordPlaying 12
+#define recordPlaying 9
 
 //Pins A4 and A5 are automaticaly selected for use with the I2C displays and the multiplex board
 
 //Take high when the selection display is showing the selection just made
-#define ledYourSelection 16
+#define ledYourSelection 10
 //Take high when the selection display is showing the record that is currently playing
-#define ledRecordPlaying 17
+#define ledRecordPlaying 11
 //Take high for a certain amount of time if a button is pressed and unitMemory is less than unitsPerPlay
-#define ledAddCoins 18
+#define ledAddCoins 12
 //Take high when the reset button is pressed and keep high until another button is pressed
-#define ledResetReselect 19
+#define ledResetReselect 13
 
 // SX1509 I2C address (set by ADDR1 and ADDR0 (00 by default):
 const byte SX1509_ADDRESS = 0x3E;  // SX1509 I2C address
@@ -127,7 +129,7 @@ void recordSelect(int id){
       errorValue = 0;
   }
   digitalWrite(controlStartSpin, HIGH);
-     do{
+     do{                        //need to change so that you can select a record at any time and so that you can add money at any time
         delay(10);
         ++errorValue;
      }while(digitalRead(controlHome) != LOW);
@@ -187,6 +189,13 @@ void setup(){
   // Set up the Arduino interrupt pin as an input w/ 
   // internal pull-up. (The SX1509 interrupt is active-low.)
   pinMode(ARDUINO_INTERRUPT_PIN, INPUT_PULLUP);
+
+  clearSelectionDisplay();
+  clearCreditDisplay();
+  digitalWrite(ledResetReselect, HIGH);
+  digitalWrite(ledAddCoins, HIGH);
+  digitalWrite(ledRecordPlaying, HIGH);
+  digitalWrite(ledYourSelection, HIGH);
 }
 
 // Compared to the keypad in keypad.ino, this keypad example
@@ -200,6 +209,7 @@ const unsigned int releaseCountMax = 100; // Release limit
 int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
+
     // If the SX1509 INT pin goes low, a keypad button has
   // been pressed:
   if (digitalRead(ARDUINO_INTERRUPT_PIN) == LOW)
@@ -222,25 +232,40 @@ void loop(){
         clearSelectionDisplay();
         selectionDisplayCount = 1;
         currentSelection = 0;
+        incorrectSelection = 0;
+        digitalWrite(ledResetReselect, HIGH);
       }
-      else if (key < 10 && key >= 0 && selectionDisplayCount <= 4){
-       selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+      else if(incorrectSelection == 0){
+      if (key < 10 && key >= 0 && selectionDisplayCount <= 4){
+       if((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)){
+          currentSelection = key * 100;
+        selectionDisplay.writeDigitNum(selectionDisplayCount, key);
         selectionDisplay.writeDisplay();
         Serial.print(key);
-        if(selectionDisplayCount == 1){
-          currentSelection = key * 100;
        }
-       else if(selectionDisplayCount == 3){ //There's probably a better way to have the keys go into a three digit variable but I don't know it
+       else if((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){ //There's probably a better way to have the keys go into a three digit variable but I don't know it
         currentSelection = currentSelection + (key * 10);
+        selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+        selectionDisplay.writeDisplay();
+        Serial.print(key);
        }
-       else{
+       else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
         currentSelection = key + currentSelection;
+        selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+        selectionDisplay.writeDisplay();
+        Serial.print(key);
         Serial.print(currentSelection);
        }
+       else{
+        digitalWrite(ledResetReselect, LOW);
+        incorrectSelection = 1;
+       }
+        
         ++selectionDisplayCount;
         if(selectionDisplayCount == 2){++selectionDisplayCount;}
         delay(250);
       }
+    }
     }
     else // If the button's beging held down:
     {
