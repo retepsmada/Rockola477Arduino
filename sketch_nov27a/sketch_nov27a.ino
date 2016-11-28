@@ -59,7 +59,7 @@ void recordSelect(int id){
     //This sets the side to A if the hundreds digit is 1 and B otherwise.
     recordFromId.side = (digits[2] == 1) ? A : B;
     //This sets the record number to the ones digit times 10 plus the tens digit.
-    recordFromId.num = digits[0]*10+digits[1];
+    recordFromId.num = digits[0]*10+digits[1]+1;
     Serial.print(recordFromId.side);
     Serial.print(recordFromId.num);
   if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))){
