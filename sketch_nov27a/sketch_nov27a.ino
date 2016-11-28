@@ -12,7 +12,6 @@
 //If you want B and it's A, just do one more full rotation
 #define controlSide 8
 //High when a record is playing
-#define recordPlaying 9
 #define pin 9
 //This is a datatype that can be either "A" or "B".
 enum side { A, B };
@@ -23,7 +22,7 @@ typedef struct {
     side side;
     int num;
 } record;
-
+int Home = 0;
 int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
@@ -62,18 +61,18 @@ void recordSelect(int id){
     recordFromId.num = digits[0]*10+digits[1]+1;
     Serial.print(recordFromId.side);
     Serial.print(recordFromId.num);
-  if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))){
-     digitalWrite(controlStartSpin, HIGH);
+  digitalWrite(controlStartSpin, HIGH);
+  delay(250);
+  if (((recordFromId.side == 0) && (digitalRead(controlSide) == HIGH)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == LOW))){
+    
      while(digitalRead(controlHome) == 1);{
       Serial.print("1");
      }
       digitalWrite(controlStartSpin, LOW);
-      errorValue = 0;
       Serial.print(digitalRead(controlHome));
      while(digitalRead(controlHome) == 0);{
         Serial.print("2");
       }
-      errorValue = 0;
   }
   digitalWrite(controlStartSpin, HIGH);
   Serial.print("3");
@@ -96,6 +95,7 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, HIGH);
   delay(50);
   digitalWrite(controlStopSpin, LOW);
+  pulseCount = 0;
 }
 void setup() {
   // put your setup code here, to run once:
@@ -106,12 +106,12 @@ void setup() {
   pinMode(controlStartSpin, OUTPUT);
   pinMode(controlStopSpin, OUTPUT);
   pinMode(controlPulse, INPUT);
-  pinMode(recordPlaying, INPUT);
+  pinMode(pin, INPUT_PULLUP);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(digitalRead(pin) == 1){
-    recordSelect(167);
+  if(digitalRead(pin) == 0){
+    recordSelect(291);
   }
 }
