@@ -15,7 +15,7 @@ typedef struct {
 } record;
 int creditsIn = 0;
 int moneyIn = 0;
-int incorrectSelection = 0;//goes to one if selection is incorrect
+bool incorrectSelection = false;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
 int currentState = 0; //Curent state of pulse pin
@@ -115,9 +115,10 @@ void recordSelect(int id){
     recordFromId.side = (digits[2] == 1) ? A : B;
     //This sets the record number to the ones digit times 10 plus the tens digit.
     recordFromId.num = digits[0]*10+digits[1]+1;
-    
+    digitalWrite(controlStartSpin, HIGH);
+    delay(250);
   if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))){
-     digitalWrite(controlStartSpin, HIGH);
+     
      while(digitalRead(controlHome) != 0);
       digitalWrite(controlStartSpin, LOW);
       while(digitalRead(controlHome) != 1);
@@ -206,6 +207,7 @@ void loop(){
   // count hits the max.
   if(selectionDone){
     recordSelect(currentSelection);
+    selectionDone = false;
   }
   releaseCount++;
   if (releaseCount >= releaseCountMax)
@@ -234,10 +236,10 @@ void keypadISR(){
         clearSelectionDisplay();
         selectionDisplayCount = 1;
         currentSelection = 0;
-        incorrectSelection = 0;
+        incorrectSelection = false;
         digitalWrite(ledResetReselect, HIGH);
       }
-      else if(incorrectSelection == 0){
+      else if(incorrectSelection){
       if (key < 10 && key >= 0 && selectionDisplayCount <= 4){
        if((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)){
           currentSelection = key * 100;
@@ -261,20 +263,12 @@ void keypadISR(){
        }
        else{
         digitalWrite(ledResetReselect, LOW);
-        incorrectSelection = 1;
+        incorrectSelection = true;
        }
-        
         ++selectionDisplayCount;
         if(selectionDisplayCount == 2){++selectionDisplayCount;}
-        delay(250);
       }
     }
-    }
-    else // If the button's beging held down:
-    {
-      holdCount++; // Increment holdCount
-      if (holdCount > holdCountMax) // If it exceeds threshold
-        Serial.println(key); // Print the key
     }
     releaseCount = 0; // Clear the releaseCount variable
     previousKeyData = keyData; // Update previousKeyData
