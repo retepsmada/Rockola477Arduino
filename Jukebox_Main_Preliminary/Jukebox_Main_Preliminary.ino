@@ -21,6 +21,7 @@ int currentSelection = 0;//Current record displayed on screen
 int currentState = 0; //Curent state of pulse pin
 int lastState = 0;//Last state of pulse pin
 int errorValue = 0;//used to detect if there has been a mechanical error
+bool selectionDone = false;
 //Pin Variables
 
 //Count pulses from opto encoder on carousel until the correct record is reached
@@ -200,12 +201,12 @@ const unsigned int releaseCountMax = 100; // Release limit
 int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
-
- 
-  
   // If no keys have been pressed we'll continuously increment
   //  releaseCount. Eventually creating a release, once the 
   // count hits the max.
+  if(selectionDone){
+    recordSelect(currentSelection);
+  }
   releaseCount++;
   if (releaseCount >= releaseCountMax)
   {
@@ -256,6 +257,7 @@ void keypadISR(){
         selectionDisplay.writeDisplay();
         Serial.print(key);
         Serial.print(currentSelection);
+        selectionDone = true;
        }
        else{
         digitalWrite(ledResetReselect, LOW);
