@@ -13,15 +13,13 @@ typedef struct {
     side side;
     int num;
 } record;
-int creditsIn = 0;
-int moneyIn = 0;
-bool incorrectSelection = false;//goes to one if selection is incorrect
+
+int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
 int currentState = 0; //Curent state of pulse pin
 int lastState = 0;//Last state of pulse pin
 int errorValue = 0;//used to detect if there has been a mechanical error
-bool selectionDone = false;
 //Pin Variables
 
 //Count pulses from opto encoder on carousel until the correct record is reached
@@ -115,10 +113,9 @@ void recordSelect(int id){
     recordFromId.side = (digits[2] == 1) ? A : B;
     //This sets the record number to the ones digit times 10 plus the tens digit.
     recordFromId.num = digits[0]*10+digits[1]+1;
-    digitalWrite(controlStartSpin, HIGH);
-    delay(250);
+    
   if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))){
-     
+     digitalWrite(controlStartSpin, HIGH);
      while(digitalRead(controlHome) != 0);
       digitalWrite(controlStartSpin, LOW);
       while(digitalRead(controlHome) != 1);
@@ -136,7 +133,6 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, HIGH);
   delay(50);
   digitalWrite(controlStopSpin, LOW);
-  --creditsIn;
 }
 
 void creditCounter(int coin){
@@ -181,7 +177,6 @@ void setup(){
   // Set up the Arduino interrupt pin as an input w/ 
   // internal pull-up. (The SX1509 interrupt is active-low.)
   pinMode(ARDUINO_INTERRUPT_PIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(ARDUINO_INTERRUPT_PIN),keypadISR,FALLING);
 
   clearSelectionDisplay();
   clearCreditDisplay();
@@ -202,22 +197,11 @@ const unsigned int releaseCountMax = 100; // Release limit
 int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
-  // If no keys have been pressed we'll continuously increment
-  //  releaseCount. Eventually creating a release, once the 
-  // count hits the max.
-  if(selectionDone){
-    recordSelect(currentSelection);
-    selectionDone = false;
-  }
-  releaseCount++;
-  if (releaseCount >= releaseCountMax)
-  {
-    releaseCount = 0;
-    previousKeyData = 0;
-  }
-}
 
-void keypadISR(){
+    // If the SX1509 INT pin goes low, a keypad button has
+  // been pressed:
+  if (digitalRead(ARDUINO_INTERRUPT_PIN) == LOW)
+  {
     // Use io.readKeypad() to get the raw keypad row/column
     unsigned int keyData = io.readKeypad();
   // Then use io.getRow() and io.getCol() to parse that
@@ -236,10 +220,10 @@ void keypadISR(){
         clearSelectionDisplay();
         selectionDisplayCount = 1;
         currentSelection = 0;
-        incorrectSelection = false;
+        incorrectSelection = 0;
         digitalWrite(ledResetReselect, HIGH);
       }
-      else if(incorrectSelection){
+      else if(incorrectSelection == 0){
       if (key < 10 && key >= 0 && selectionDisplayCount <= 4){
        if((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)){
           currentSelection = key * 100;
@@ -259,18 +243,36 @@ void keypadISR(){
         selectionDisplay.writeDisplay();
         Serial.print(key);
         Serial.print(currentSelection);
-        selectionDone = true;
        }
        else{
         digitalWrite(ledResetReselect, LOW);
-        incorrectSelection = true;
+        incorrectSelection = 1;
        }
+        
         ++selectionDisplayCount;
         if(selectionDisplayCount == 2){++selectionDisplayCount;}
+        delay(250);
       }
     }
     }
+    else // If the button's beging held down:
+    {
+      holdCount++; // Increment holdCount
+      if (holdCount > holdCountMax) // If it exceeds threshold
+        Serial.println(key); // Print the key
+    }
     releaseCount = 0; // Clear the releaseCount variable
     previousKeyData = keyData; // Update previousKeyData
+  }
+  
+  // If no keys have been pressed we'll continuously increment
+  //  releaseCount. Eventually creating a release, once the 
+  // count hits the max.
+  releaseCount++;
+  if (releaseCount >= releaseCountMax)
+  {
+    releaseCount = 0;
+    previousKeyData = 0;
+  }
 }
 
