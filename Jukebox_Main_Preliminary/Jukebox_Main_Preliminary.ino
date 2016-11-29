@@ -13,7 +13,8 @@ typedef struct {
     side side;
     int num;
 } record;
-
+int creditsIn = 0;
+int moneyIn = 0;
 int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
@@ -133,6 +134,7 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, HIGH);
   delay(50);
   digitalWrite(controlStopSpin, LOW);
+  --creditsIn;
 }
 
 void creditCounter(int coin){
@@ -177,6 +179,7 @@ void setup(){
   // Set up the Arduino interrupt pin as an input w/ 
   // internal pull-up. (The SX1509 interrupt is active-low.)
   pinMode(ARDUINO_INTERRUPT_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(ARDUINO_INTERRUPT_PIN),keypadISR,FALLING);
 
   clearSelectionDisplay();
   clearCreditDisplay();
@@ -198,10 +201,20 @@ int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
 
-    // If the SX1509 INT pin goes low, a keypad button has
-  // been pressed:
-  if (digitalRead(ARDUINO_INTERRUPT_PIN) == LOW)
+ 
+  
+  // If no keys have been pressed we'll continuously increment
+  //  releaseCount. Eventually creating a release, once the 
+  // count hits the max.
+  releaseCount++;
+  if (releaseCount >= releaseCountMax)
   {
+    releaseCount = 0;
+    previousKeyData = 0;
+  }
+}
+
+void keypadISR(){
     // Use io.readKeypad() to get the raw keypad row/column
     unsigned int keyData = io.readKeypad();
   // Then use io.getRow() and io.getCol() to parse that
@@ -263,16 +276,5 @@ void loop(){
     }
     releaseCount = 0; // Clear the releaseCount variable
     previousKeyData = keyData; // Update previousKeyData
-  }
-  
-  // If no keys have been pressed we'll continuously increment
-  //  releaseCount. Eventually creating a release, once the 
-  // count hits the max.
-  releaseCount++;
-  if (releaseCount >= releaseCountMax)
-  {
-    releaseCount = 0;
-    previousKeyData = 0;
-  }
 }
 
