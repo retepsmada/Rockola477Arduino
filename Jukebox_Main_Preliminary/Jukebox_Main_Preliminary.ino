@@ -10,8 +10,8 @@ typedef enum side side;
 //This is a datatype representing a record.
 //It has both a side and a record number.
 typedef struct {
-    side side;
-    int num;
+  side side;
+  int num;
 } record;
 
 int incorrectSelection = 0;//goes to one if selection is incorrect
@@ -58,10 +58,11 @@ SX1509 io; // Create an SX1509 object to be used throughout
 
 // keyMap maps row/column combinations to characters:
 int keyMap[KEY_ROWS][KEY_COLS] = {
-{ 2, 10, 7, 11},
-{ 1, 4, 6, 9},
-{ 0, 3, 5, 8},
-{ 12, 13, 14, 15}};
+    {2, 10, 7, 11},
+    {1, 4, 6, 9},
+    {0, 3, 5, 8},
+    {12, 13, 14, 15}
+};
 
 const byte ARDUINO_INTERRUPT_PIN = 2;
 
@@ -87,45 +88,46 @@ void clearSelectionDisplay(){
 }
 
 void recordSelect(int id){
-   /**
-     * This function takes in a number assuming that:
-     * * It has three digits.
-     * * Its hundreds digit is 1 or 2.
-     * * Its tens digit is 0-9.
-     * * Its ones digit is 0-7.
-     * It then returns a record corresponding to that id number.
-    */
-    //First, compute the digits in id:
-    int digits[3];
-    for (int i = 0; i < 3; i++) {
-        //i % 10 always represents the ones digit of a number:
-        digits[i] = id % 10;
-        //Now, divide i by 10 to get rid of the last digit:
-        id /= 10;
-        /* This means that the next digit we add will be the digit right before the one we just added.
-           Thus, digits[0] is the ones digit,
-                 digits[1] is the tens digit,
-             and digits[2] is the hundreds digit. */
-    }
-    
-    record recordFromId;
-    //This sets the side to A if the hundreds digit is 1 and B otherwise.
-    recordFromId.side = (digits[2] == 1) ? A : B;
-    //This sets the record number to the ones digit times 10 plus the tens digit.
-    recordFromId.num = digits[0]*10+digits[1]+1;
-    
-  if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))){
-     digitalWrite(controlStartSpin, HIGH);
-     while(digitalRead(controlHome) != 0);
-      digitalWrite(controlStartSpin, LOW);
-      while(digitalRead(controlHome) != 1);
+ /**
+   * This function takes in a number assuming that:
+   * * It has three digits.
+   * * Its hundreds digit is 1 or 2.
+   * * Its tens digit is 0-9.
+   * * Its ones digit is 0-7.
+   * It then returns a record corresponding to that id number.
+  */
+  //First, compute the digits in id:
+  int digits[3];
+  for (int i = 0; i < 3; i++) {
+    //i % 10 always represents the ones digit of a number:
+    digits[i] = id % 10;
+    //Now, divide i by 10 to get rid of the last digit:
+    id /= 10;
+    /* This means that the next digit we add will be the digit right before the one we just added.
+       Thus, digits[0] is the ones digit,
+             digits[1] is the tens digit,
+         and digits[2] is the hundreds digit. */
   }
-  digitalWrite(controlStartSpin, HIGH);
+
+  record recordFromId;
+  //This sets the side to A if the hundreds digit is 1 and B otherwise.
+  recordFromId.side = (digits[2] == 1) ? A : B;
+  //This sets the record number to the ones digit times 10 plus the tens digit.
+  recordFromId.num = digits[0]*10+digits[1]+1;
+
+  //if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))) {
+  if (digitalRead(controlSide) == 1-recordFromId.side) {
+    digitalWrite(controlStartSpin, HIGH);
     while(digitalRead(controlHome) != 0);
     digitalWrite(controlStartSpin, LOW);
+    while(digitalRead(controlHome) != 1);
+  }
+  digitalWrite(controlStartSpin, HIGH);
+  while(digitalRead(controlHome) != 0);
+  digitalWrite(controlStartSpin, LOW);
   while(recordFromId.num != pulseCount){
     currentState = digitalRead(controlPulse);// this works
-    if(currentState != lastState && currentState == HIGH){
+    if (currentState != lastState && currentState == HIGH) {
       ++pulseCount;
     }
     lastState = currentState;
@@ -158,11 +160,8 @@ void setup(){
   creditDisplay.begin(0x71);
   selectionDisplay.begin(0x70);
 
-
-  if (!io.begin(SX1509_ADDRESS))
-  {
-    while (1); // If we fail to communicate, loop forever.
-  }
+  // If we fail to communicate, loop forever.
+  if (!io.begin(SX1509_ADDRESS)) while (1);
   
   // Scan time range: 1-128 ms, powers of 2
   byte scanTime = 8; // Scan time per row, in ms
@@ -197,66 +196,63 @@ const unsigned int releaseCountMax = 100; // Release limit
 int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
-
-    // If the SX1509 INT pin goes low, a keypad button has
+  // If the SX1509 INT pin goes low, a keypad button has
   // been pressed:
-  if (digitalRead(ARDUINO_INTERRUPT_PIN) == LOW)
-  {
+  if (digitalRead(ARDUINO_INTERRUPT_PIN) == LOW) {
     // Use io.readKeypad() to get the raw keypad row/column
     unsigned int keyData = io.readKeypad();
-  // Then use io.getRow() and io.getCol() to parse that
-  // data into row and column values.
+    // Then use io.getRow() and io.getCol() to parse that
+    // data into row and column values.
     byte row = io.getRow(keyData);
     byte col = io.getCol(keyData);
-  // Then plug row and column into keyMap to get which
-  // key was pressed.
+    // Then plug row and column into keyMap to get which
+    // key was pressed.
     int key = keyMap[row][col];
     
-  // If it's a new key pressed
-    if (keyData != previousKeyData)
-    {
+    // If it's a new key pressed
+    if (keyData != previousKeyData) {
       holdCount = 0;
-      if(key == 11){
+      if (key == 11) {
         clearSelectionDisplay();
         selectionDisplayCount = 1;
         currentSelection = 0;
         incorrectSelection = 0;
         digitalWrite(ledResetReselect, HIGH);
       }
-      else if(incorrectSelection == 0){
-      if (key < 10 && key >= 0 && selectionDisplayCount <= 4){
-       if((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)){
-          currentSelection = key * 100;
-        selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-        selectionDisplay.writeDisplay();
-        Serial.print(key);
-       }
-       else if((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){ //There's probably a better way to have the keys go into a three digit variable but I don't know it
-        currentSelection = currentSelection + (key * 10);
-        selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-        selectionDisplay.writeDisplay();
-        Serial.print(key);
-       }
-       else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
-        currentSelection = key + currentSelection;
-        selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-        selectionDisplay.writeDisplay();
-        Serial.print(key);
-        Serial.print(currentSelection);
-       }
-       else{
-        digitalWrite(ledResetReselect, LOW);
-        incorrectSelection = 1;
-       }
-        
-        ++selectionDisplayCount;
-        if(selectionDisplayCount == 2){++selectionDisplayCount;}
-        delay(250);
+      else if(incorrectSelection == 0) {
+        if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
+          if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
+            currentSelection = key * 100;
+            selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+            selectionDisplay.writeDisplay();
+            Serial.print(key);
+          }
+          else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){ //There's probably a better way to have the keys go into a three digit variable but I don't know it
+            currentSelection = currentSelection + (key * 10);
+            selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+            selectionDisplay.writeDisplay();
+            Serial.print(key);
+          }
+          else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
+            currentSelection = key + currentSelection;
+            selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+            selectionDisplay.writeDisplay();
+            Serial.print(key);
+            Serial.print(currentSelection);
+          }
+          else{
+            digitalWrite(ledResetReselect, LOW);
+            incorrectSelection = 1;
+          }
+          
+          ++selectionDisplayCount;
+          if(selectionDisplayCount == 2){++selectionDisplayCount;}
+          delay(250);
+        }
       }
     }
-    }
-    else // If the button's beging held down:
-    {
+    // If the button's being held down:
+    else {
       holdCount++; // Increment holdCount
       if (holdCount > holdCountMax) // If it exceeds threshold
         Serial.println(key); // Print the key
@@ -269,10 +265,8 @@ void loop(){
   //  releaseCount. Eventually creating a release, once the 
   // count hits the max.
   releaseCount++;
-  if (releaseCount >= releaseCountMax)
-  {
+  if (releaseCount >= releaseCountMax) {
     releaseCount = 0;
     previousKeyData = 0;
   }
 }
-
