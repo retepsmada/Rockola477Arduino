@@ -221,25 +221,30 @@ void loop(){
       }
       else if(incorrectSelection == 0) {
         if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
+          inline void updateCurrentSelection() {
+            //Add key as a digit to currentSelection:
+            currentSelection *= 10;
+            currentSelection += key;
+            //Write key to selectionDisplay and Serial:
+            selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+            selectionDisplay.writeDisplay();
+            Serial.print(key);
+          }
+
+          //Let the first digit be either a 1 or a 2:
           if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
-            currentSelection = key * 100;
-            selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-            selectionDisplay.writeDisplay();
-            Serial.print(key);
+            updateCurrentSelection();
           }
-          else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){ //There's probably a better way to have the keys go into a three digit variable but I don't know it
-            currentSelection = currentSelection + (key * 10);
-            selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-            selectionDisplay.writeDisplay();
-            Serial.print(key);
+          //Let the second digit be 0-9:
+          else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){
+            updateCurrentSelection();
           }
+          //Let the third digit be 0-7:
           else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
-            currentSelection = key + currentSelection;
-            selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-            selectionDisplay.writeDisplay();
-            Serial.print(key);
+            updateCurrentSelection();
             Serial.print(currentSelection);
           }
+          //If one of the digits does not match the given criteria, set incorrectSelection:
           else{
             digitalWrite(ledResetReselect, LOW);
             incorrectSelection = 1;
