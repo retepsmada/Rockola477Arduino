@@ -22,6 +22,8 @@ int lastState = 0;//Last state of pulse pin
 int errorValue = 0;//used to detect if there has been a mechanical error
 //Pin Variables
 
+//Interrupt pin from IO expander
+#define keyInterrupt 2
 //Count pulses from opto encoder on carousel until the correct record is reached
 #define controlPulse 3
 //Pulse to stop carosel spinning
@@ -183,8 +185,8 @@ void setup(){
   digitalWrite(ledAddCoins, HIGH);
   digitalWrite(ledRecordPlaying, HIGH);
   digitalWrite(ledYourSelection, HIGH);
+  attachInterrupt(digitalPinToInterrupt(keyInterrupt), keyboardRead, LOW);
 }
-
 // Compared to the keypad in keypad.ino, this keypad example
 // is a bit more advanced. We'll use these variables to check
 // if a key is being held down, or has been released. Then we
@@ -195,83 +197,76 @@ const unsigned int holdCountMax = 5; // Key hold limit
 const unsigned int releaseCountMax = 100; // Release limit
 int selectionDisplayCount = 1; //What display digit we're currently on
 
-void loop(){
-  // If the SX1509 INT pin goes low, a keypad button has
-  // been pressed:
-  if (digitalRead(ARDUINO_INTERRUPT_PIN) == LOW) {
-    // Use io.readKeypad() to get the raw keypad row/column
-    unsigned int keyData = io.readKeypad();
-    // Then use io.getRow() and io.getCol() to parse that
-    // data into row and column values.
-    byte row = io.getRow(keyData);
-    byte col = io.getCol(keyData);
-    // Then plug row and column into keyMap to get which
-    // key was pressed.
-    int key = keyMap[row][col];
-    
-    // If it's a new key pressed
-    if (keyData != previousKeyData) {
-      holdCount = 0;
-      if (key == 11) {
-        clearSelectionDisplay();
-        selectionDisplayCount = 1;
-        currentSelection = 0;
-        incorrectSelection = 0;
-        digitalWrite(ledResetReselect, HIGH);
-      }
-      else if(incorrectSelection == 0) {
-        if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
-          inline void updateCurrentSelection() {
-            //Add key as a digit to currentSelection:
-            currentSelection *= 10;
-            currentSelection += key;
-            //Write key to selectionDisplay and Serial:
-            selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-            selectionDisplay.writeDisplay();
-            Serial.print(key);
-          }
 
-          //Let the first digit be either a 1 or a 2:
-          if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
-            updateCurrentSelection();
-          }
-          //Let the second digit be 0-9:
-          else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){
-            updateCurrentSelection();
-          }
-          //Let the third digit be 0-7:
-          else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
-            updateCurrentSelection();
-            Serial.print(currentSelection);
-          }
-          //If one of the digits does not match the given criteria, set incorrectSelection:
-          else{
-            digitalWrite(ledResetReselect, LOW);
-            incorrectSelection = 1;
-          }
-          
-          ++selectionDisplayCount;
-          if(selectionDisplayCount == 2){++selectionDisplayCount;}
-          delay(250);
+void loop(){
+
+}
+
+volatile int key;
+
+void keyboardRead(){
+  // Use io.readKeypad() to get the raw keypad row/column
+  unsigned int keyData = io.readKeypad();
+  // Then use io.getRow() and io.getCol() to parse that
+  // data into row and column values.
+  byte row = io.getRow(keyData);
+  byte col = io.getCol(keyData);
+  // Then plug row and column into keyMap to get which
+  // key was pressed.
+  key = keyMap[row][col];
+  
+  // If it's a new key pressed
+  if (keyData != previousKeyData) {
+    holdCount = 0;
+    if (key == 11) {
+      clearSelectionDisplay();
+      selectionDisplayCount = 1;
+      currentSelection = 0;
+      incorrectSelection = 0;
+      digitalWrite(ledResetReselect, HIGH);
+    }
+    else if(incorrectSelection == 0) {
+      if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
+        //Let the first digit be either a 1 or a 2:
+        if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
+          updateCurrentSelection();
         }
+        //Let the second digit be 0-9:
+        else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){
+          updateCurrentSelection();
+        }
+        //Let the third digit be 0-7:
+        else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
+          updateCurrentSelection();
+          Serial.print(currentSelection);
+        }
+        //If one of the digits does not match the given criteria, set incorrectSelection:
+        else{
+          digitalWrite(ledResetReselect, LOW);
+          incorrectSelection = 1;
+        }
+        
+        ++selectionDisplayCount;
+        if(selectionDisplayCount == 2){++selectionDisplayCount;}
       }
     }
-    // If the button's being held down:
-    else {
-      holdCount++; // Increment holdCount
-      if (holdCount > holdCountMax) // If it exceeds threshold
-        Serial.println(key); // Print the key
-    }
-    releaseCount = 0; // Clear the releaseCount variable
-    previousKeyData = keyData; // Update previousKeyData
   }
-  
-  // If no keys have been pressed we'll continuously increment
-  //  releaseCount. Eventually creating a release, once the 
-  // count hits the max.
-  releaseCount++;
-  if (releaseCount >= releaseCountMax) {
-    releaseCount = 0;
-    previousKeyData = 0;
+  // If the button's being held down:
+  else {
+    holdCount++; // Increment holdCount
+    if (holdCount > holdCountMax) // If it exceeds threshold
+      Serial.println(key); // Print the key
   }
+  releaseCount = 0; // Clear the releaseCount variable
+  previousKeyData = keyData; // Update previousKeyData
 }
+
+void updateCurrentSelection() {
+          //Add key as a digit to currentSelection:
+          currentSelection *= 10;
+          currentSelection += key;
+          //Write key to selectionDisplay and Serial:
+          selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+          selectionDisplay.writeDisplay();
+          Serial.print(key);
+        }
