@@ -305,6 +305,7 @@ void keyboardRead(){
       }
       else if (key == 11) {
         clearSelection();
+        digitalWrite(ledAddCoins, HIGH);
       }
       else if(incorrectSelection == 0) {
         if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
@@ -326,6 +327,9 @@ void keyboardRead(){
               push(currentSelection);
               creditsIn -= 1;
               updateCredit();
+            }
+            else{
+              digitalWrite(ledAddCoins, LOW);
             }
           }
           //If one of the digits does not match the given criteria, set incorrectSelection:
