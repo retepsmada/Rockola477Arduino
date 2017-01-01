@@ -258,11 +258,11 @@ void clearSelection(){
 
 unsigned int keyData;
 int key;
+int lastTime = 0;
 
 void keyboardRead(){
     // If the SX1509 INT pin goes low, a keypad button has
   // been pressed:
-  if (digitalRead(ARDUINO_INTERRUPT_PIN) == LOW) {
     // Use io.readKeypad() to get the raw keypad row/column
     keyData = io.readKeypad();
     // Then use io.getRow() and io.getCol() to parse that
@@ -274,7 +274,9 @@ void keyboardRead(){
     key = keyMap[row][col];
     
     // If it's a new key pressed
-    if (keyData != previousKeyData) {
+    if ((keyData != previousKeyData) && (lastTime <= millis() - 150)) {
+      lastTime = millis();
+      previousKeyData = keyData;
       holdCount = 0;
       if (key > 11 && key < 16){
         switch(key){
@@ -291,13 +293,16 @@ void keyboardRead(){
             moneyIn +=50;
             break;
         }
+        Serial.print("Money: ");
+        Serial.println(moneyIn);
         while (moneyIn > creditAmount){
           creditsIn += 1;
           moneyIn -= creditAmount;
-          creditDisplay.print(creditsIn);
+          updateCredit();
+          Serial.print("Credits: ");
+          Serial.println(creditsIn);
         }
       }
-    }
       else if (key == 11) {
         clearSelection();
       }
@@ -320,7 +325,7 @@ void keyboardRead(){
               clearSelection();
               push(currentSelection);
               creditsIn -= 1;
-              creditDisplay.print(creditsIn);
+              updateCredit();
             }
           }
           //If one of the digits does not match the given criteria, set incorrectSelection:
@@ -331,17 +336,14 @@ void keyboardRead(){
           
           ++selectionDisplayCount;
           if(selectionDisplayCount == 2){++selectionDisplayCount;}
-          delay(250);
         }
       }
     }
     // If the button's being held down:
-    else {
-      holdCount++; // Increment holdCount
-      if (holdCount > holdCountMax){ // If it exceeds threshold
-    releaseCount = 0; // Clear the releaseCount variable
-    previousKeyData = keyData; // Update previousKeyData
-}}}
+    
+previousKeyData = 0;
+keyData = 0;
+}
 
 void updateCurrentSelection() {
   //Add key as a digit to currentSelection:
@@ -352,3 +354,11 @@ void updateCurrentSelection() {
   selectionDisplay.writeDisplay();
   Serial.print(key);
 }
+
+void updateCredit(){
+  creditDisplay.print(creditsIn * 100);
+  creditDisplay.writeDigitRaw(3,0);
+  creditDisplay.writeDigitRaw(4,0);
+  creditDisplay.writeDisplay();
+}
+
