@@ -196,15 +196,32 @@ unsigned int holdCount, releaseCount = 0; // Count durations
 const unsigned int holdCountMax = 5; // Key hold limit
 const unsigned int releaseCountMax = 100; // Release limit
 int selectionDisplayCount = 1; //What display digit we're currently on
-
+volatile bool testFlag = LOW;
 
 void loop(){
-
+  if (testFlag){
+    keyboardTest();
+  }
 }
 
 volatile int key;
 
 void keyboardRead(){
+  testFlag = HIGH;
+}
+
+void updateCurrentSelection() {
+          //Add key as a digit to currentSelection:
+          currentSelection *= 10;
+          currentSelection += key;
+          //Write key to selectionDisplay and Serial:
+          selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+          selectionDisplay.writeDisplay();
+          Serial.print(key);
+        }
+void keyboardTest(){
+  testFlag = LOW;
+    Serial.println("Hello");
   // Use io.readKeypad() to get the raw keypad row/column
   unsigned int keyData = io.readKeypad();
   // Then use io.getRow() and io.getCol() to parse that
@@ -261,12 +278,3 @@ void keyboardRead(){
   previousKeyData = keyData; // Update previousKeyData
 }
 
-void updateCurrentSelection() {
-          //Add key as a digit to currentSelection:
-          currentSelection *= 10;
-          currentSelection += key;
-          //Write key to selectionDisplay and Serial:
-          selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-          selectionDisplay.writeDisplay();
-          Serial.print(key);
-        }
