@@ -64,6 +64,13 @@ int keyMap[KEY_ROWS][KEY_COLS] = {
     {12, 13, 14, 15}
 };
 
+int MAXSIZE = 100;       
+int stack[100];     
+int top = -1;
+int moneyIn = 0;
+int creditsIn = 0;
+#define creditAmount 25
+
 const byte ARDUINO_INTERRUPT_PIN = 2;
 
 Adafruit_7segment creditDisplay = Adafruit_7segment();
@@ -137,6 +144,37 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, LOW);
 }
 
+int isempty() {
+   if(top == -1)
+      return 1;
+   else
+      return 0;
+}
+   
+int isfull() {
+   if(top == MAXSIZE)
+      return 1;
+   else
+      return 0;
+}
+
+int pop() {
+   int data;
+  
+   if(!isempty()) {
+      data = stack[top];
+      top = top - 1;   
+      return data;
+   } else {
+      return 0;
+   }
+}
+
+int push(int data) {
+      top = top + 1;   
+      stack[top] = data;
+}
+
 void creditCounter(int coin){
   
 }
@@ -196,41 +234,75 @@ const unsigned int releaseCountMax = 100; // Release limit
 int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
-  // If the SX1509 INT pin goes low, a keypad button has
+  keyboardRead();
+  if (digitalRead(recordPlaying) == LOW && digitalRead(controlHome) == HIGH && !isempty()){
+    recordSelect(pop());
+  }
+  // If no keys have been pressed we'll continuously increment
+  //  releaseCount. Eventually creating a release, once the 
+  // count hits the max.
+  /*releaseCount++;
+  if (releaseCount >= releaseCountMax) {
+    releaseCount = 0;
+    previousKeyData = 0;
+  }*/
+}
+
+void clearSelection(){
+  clearSelectionDisplay();
+  selectionDisplayCount = 1;
+  currentSelection = 0;
+  incorrectSelection = 0;
+  digitalWrite(ledResetReselect, HIGH);
+}
+
+unsigned int keyData;
+int key;
+
+void keyboardRead(){
+    // If the SX1509 INT pin goes low, a keypad button has
   // been pressed:
   if (digitalRead(ARDUINO_INTERRUPT_PIN) == LOW) {
     // Use io.readKeypad() to get the raw keypad row/column
-    unsigned int keyData = io.readKeypad();
+    keyData = io.readKeypad();
     // Then use io.getRow() and io.getCol() to parse that
     // data into row and column values.
     byte row = io.getRow(keyData);
     byte col = io.getCol(keyData);
     // Then plug row and column into keyMap to get which
     // key was pressed.
-    int key = keyMap[row][col];
+    key = keyMap[row][col];
     
     // If it's a new key pressed
     if (keyData != previousKeyData) {
       holdCount = 0;
-      if (key == 11) {
-        clearSelectionDisplay();
-        selectionDisplayCount = 1;
-        currentSelection = 0;
-        incorrectSelection = 0;
-        digitalWrite(ledResetReselect, HIGH);
+      if (key > 11 && key < 16){
+        switch(key){
+          case 12:
+            moneyIn += 5;
+            break;
+          case 13:
+            moneyIn += 10;
+            break;
+          case 14:
+            moneyIn += 25;
+            break;
+          case 15:
+            moneyIn +=50;
+            break;
+        }
+        while (moneyIn > creditAmount){
+          creditsIn += 1;
+          moneyIn -= creditAmount;
+          creditDisplay.print(creditsIn);
+        }
+      }
+    }
+      else if (key == 11) {
+        clearSelection();
       }
       else if(incorrectSelection == 0) {
         if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
-          inline void updateCurrentSelection() {
-            //Add key as a digit to currentSelection:
-            currentSelection *= 10;
-            currentSelection += key;
-            //Write key to selectionDisplay and Serial:
-            selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-            selectionDisplay.writeDisplay();
-            Serial.print(key);
-          }
-
           //Let the first digit be either a 1 or a 2:
           if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
             updateCurrentSelection();
@@ -242,7 +314,14 @@ void loop(){
           //Let the third digit be 0-7:
           else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
             updateCurrentSelection();
+            //Selection is valid
             Serial.print(currentSelection);
+            if (creditsIn){
+              clearSelection();
+              push(currentSelection);
+              creditsIn -= 1;
+              creditDisplay.print(creditsIn);
+            }
           }
           //If one of the digits does not match the given criteria, set incorrectSelection:
           else{
@@ -259,19 +338,17 @@ void loop(){
     // If the button's being held down:
     else {
       holdCount++; // Increment holdCount
-      if (holdCount > holdCountMax) // If it exceeds threshold
-        Serial.println(key); // Print the key
-    }
+      if (holdCount > holdCountMax){ // If it exceeds threshold
     releaseCount = 0; // Clear the releaseCount variable
     previousKeyData = keyData; // Update previousKeyData
-  }
-  
-  // If no keys have been pressed we'll continuously increment
-  //  releaseCount. Eventually creating a release, once the 
-  // count hits the max.
-  releaseCount++;
-  if (releaseCount >= releaseCountMax) {
-    releaseCount = 0;
-    previousKeyData = 0;
-  }
+}}}
+
+void updateCurrentSelection() {
+  //Add key as a digit to currentSelection:
+  currentSelection *= 10;
+  currentSelection += key;
+  //Write key to selectionDisplay and Serial:
+  selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+  selectionDisplay.writeDisplay();
+  Serial.print(key);
 }
