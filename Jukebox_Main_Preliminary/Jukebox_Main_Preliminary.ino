@@ -4,15 +4,7 @@
 #include <gfxfont.h>
 #include <SparkFunSX1509.h>
 
-//This is a datatype that can be either "A" or "B".
-enum side { A, B };
-typedef enum side side;
-//This is a datatype representing a record.
-//It has both a side and a record number.
-typedef struct {
-  side side;
-  int num;
-} record;
+
 
 int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
@@ -49,9 +41,21 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Take high when the reset button is pressed and keep high until another button is pressed
 #define ledResetReselect 13
 
+
+
+int MAXSIZE = 100;       
+int stack[100];     
+int top = -1;
+
+int moneyIn = 0;
+int creditsIn = 0;
+#define creditAmount 25
+
+
 // SX1509 I2C address (set by ADDR1 and ADDR0 (00 by default):
 const byte SX1509_ADDRESS = 0x3E;  // SX1509 I2C address
 SX1509 io; // Create an SX1509 object to be used throughout
+const byte ARDUINO_INTERRUPT_PIN = 2;
 
 #define KEY_ROWS 4 // Number of rows in the keypad matrix
 #define KEY_COLS 4 // Number of columns in the keypad matrix
@@ -64,14 +68,6 @@ int keyMap[KEY_ROWS][KEY_COLS] = {
     {12, 13, 14, 15}
 };
 
-int MAXSIZE = 100;       
-int stack[100];     
-int top = -1;
-int moneyIn = 0;
-int creditsIn = 0;
-#define creditAmount 25
-
-const byte ARDUINO_INTERRUPT_PIN = 2;
 
 Adafruit_7segment creditDisplay = Adafruit_7segment();
 Adafruit_7segment selectionDisplay = Adafruit_7segment();
@@ -93,6 +89,79 @@ void clearSelectionDisplay(){
   selectionDisplay.writeDigitRaw(4,0);
   selectionDisplay.writeDisplay();
 }
+
+void updateCurrentSelection() {
+  //Add key as a digit to currentSelection:
+  currentSelection *= 10;
+  currentSelection += key;
+  //Write key to selectionDisplay and Serial:
+  selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+  selectionDisplay.writeDisplay();
+  Serial.print(key);
+}
+
+void updateCredit(){
+  creditDisplay.print(creditsIn * 100);
+  creditDisplay.writeDigitRaw(3,0);
+  creditDisplay.writeDigitRaw(4,0);
+  creditDisplay.writeDisplay();
+}
+
+
+void setup(){
+  Serial.begin(9600);
+  Serial.print("Tast.mp3");
+  pinMode(ledResetReselect, OUTPUT);
+  pinMode(ledAddCoins, OUTPUT);
+  pinMode(ledRecordPlaying, OUTPUT);
+  pinMode(ledYourSelection, OUTPUT);
+  pinMode(controlSide, INPUT);
+  pinMode(controlHome, INPUT);
+  pinMode(controlScan, OUTPUT);
+  pinMode(controlStartSpin, OUTPUT);
+  pinMode(controlStopSpin, OUTPUT);
+  pinMode(controlPulse, INPUT);
+  pinMode(recordPlaying, INPUT);
+
+
+  // If we fail to communicate, loop forever.
+  if (!io.begin(SX1509_ADDRESS)) while (1);
+  // Scan time range: 1-128 ms, powers of 2
+  byte scanTime = 8; // Scan time per row, in ms
+  // Debounce time range: 0.5 - 64 ms (powers of 2)
+  byte debounceTime = 1; // Debounce time
+  // Sleep time range: 128 ms - 8192 ms (powers of 2) 0=OFF
+  byte sleepTime = 0;
+  // Scan time must be greater than debounce time!
+  io.keypad(KEY_ROWS, KEY_COLS, 
+            sleepTime, scanTime, debounceTime);       
+  // Set up the Arduino interrupt pin as an input w/ 
+  // internal pull-up. (The SX1509 interrupt is active-low.)
+  pinMode(ARDUINO_INTERRUPT_PIN, INPUT_PULLUP);
+
+  
+  creditDisplay.begin(0x71);
+  selectionDisplay.begin(0x70);
+
+  clearSelectionDisplay();
+  clearCreditDisplay();
+  
+  digitalWrite(ledResetReselect, HIGH);
+  digitalWrite(ledAddCoins, HIGH);
+  digitalWrite(ledRecordPlaying, HIGH);
+  digitalWrite(ledYourSelection, HIGH);
+}
+
+
+//This is a datatype that can be either "A" or "B".
+enum side { A, B };
+typedef enum side side;
+//This is a datatype representing a record.
+//It has both a side and a record number.
+typedef struct {
+  side side;
+  int num;
+} record;
 
 void recordSelect(int id){
  /**
@@ -175,53 +244,6 @@ int push(int data) {
       stack[top] = data;
 }
 
-void creditCounter(int coin){
-  
-}
-
-void setup(){
-  Serial.begin(9600);
-  Serial.print("Tast.mp3");
-  
-  pinMode(ledResetReselect, OUTPUT);
-  pinMode(ledAddCoins, OUTPUT);
-  pinMode(ledRecordPlaying, OUTPUT);
-  pinMode(ledYourSelection, OUTPUT);
-  pinMode(controlSide, INPUT);
-  pinMode(controlHome, INPUT);
-  pinMode(controlScan, OUTPUT);
-  pinMode(controlStartSpin, OUTPUT);
-  pinMode(controlStopSpin, OUTPUT);
-  pinMode(controlPulse, INPUT);
-  pinMode(recordPlaying, INPUT);
-  
-  creditDisplay.begin(0x71);
-  selectionDisplay.begin(0x70);
-
-  // If we fail to communicate, loop forever.
-  if (!io.begin(SX1509_ADDRESS)) while (1);
-  
-  // Scan time range: 1-128 ms, powers of 2
-  byte scanTime = 8; // Scan time per row, in ms
-  // Debounce time range: 0.5 - 64 ms (powers of 2)
-  byte debounceTime = 1; // Debounce time
-  // Sleep time range: 128 ms - 8192 ms (powers of 2) 0=OFF
-  byte sleepTime = 0;
-  // Scan time must be greater than debounce time!
-  io.keypad(KEY_ROWS, KEY_COLS, 
-            sleepTime, scanTime, debounceTime);
-
-  // Set up the Arduino interrupt pin as an input w/ 
-  // internal pull-up. (The SX1509 interrupt is active-low.)
-  pinMode(ARDUINO_INTERRUPT_PIN, INPUT_PULLUP);
-
-  clearSelectionDisplay();
-  clearCreditDisplay();
-  digitalWrite(ledResetReselect, HIGH);
-  digitalWrite(ledAddCoins, HIGH);
-  digitalWrite(ledRecordPlaying, HIGH);
-  digitalWrite(ledYourSelection, HIGH);
-}
 
 // Compared to the keypad in keypad.ino, this keypad example
 // is a bit more advanced. We'll use these variables to check
@@ -258,7 +280,6 @@ void clearSelection(){
 
 unsigned int keyData;
 int key;
-int lastTime = 0;
 
 void keyboardRead(){
     // If the SX1509 INT pin goes low, a keypad button has
@@ -274,8 +295,7 @@ void keyboardRead(){
     key = keyMap[row][col];
     
     // If it's a new key pressed
-    if ((keyData != previousKeyData) && (lastTime <= millis() - 150)) {
-      lastTime = millis();
+    if (keyData != previousKeyData) {
       previousKeyData = keyData;
       holdCount = 0;
       if (key > 11 && key < 16){
@@ -295,7 +315,7 @@ void keyboardRead(){
         }
         Serial.print("Money: ");
         Serial.println(moneyIn);
-        while (moneyIn > creditAmount){
+        while (moneyIn >= creditAmount){
           creditsIn += 1;
           moneyIn -= creditAmount;
           updateCredit();
@@ -343,26 +363,7 @@ void keyboardRead(){
         }
       }
     }
-    // If the button's being held down:
     
 previousKeyData = 0;
 keyData = 0;
 }
-
-void updateCurrentSelection() {
-  //Add key as a digit to currentSelection:
-  currentSelection *= 10;
-  currentSelection += key;
-  //Write key to selectionDisplay and Serial:
-  selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-  selectionDisplay.writeDisplay();
-  Serial.print(key);
-}
-
-void updateCredit(){
-  creditDisplay.print(creditsIn * 100);
-  creditDisplay.writeDigitRaw(3,0);
-  creditDisplay.writeDigitRaw(4,0);
-  creditDisplay.writeDisplay();
-}
-
