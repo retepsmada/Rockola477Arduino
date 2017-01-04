@@ -5,7 +5,6 @@
 #include <SparkFunSX1509.h>
 
 
-
 int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
@@ -40,6 +39,7 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 #define ledAddCoins 12
 //Take high when the reset button is pressed and keep high until another button is pressed
 #define ledResetReselect 13
+
 
 int moneyIn = 0;
 int creditsIn = 0;
@@ -290,18 +290,8 @@ void keyboardRead(){
     // Then plug row and column into keyMap to get which
     // key was pressed.
     key = keyMap[row][col];
-
-    //If no key is being pressed right now, then increment releaseCount, which counts the number of loops since we last pressed a key:
-    if (keyData == 0) {
-        releaseCount++;
-        //If we have not pressed a key in releaseCountMax loops, then we will say that we have released the previous key, which is marked by
-        if (releaseCount > releaseCountMax) previousKeyData = 0;
-    }
-    //Otherwise, if a key is being pressed, then the number of loops since we last pressed a key is 0:
-    else releaseCount = 0;
     
-    // If it's a key is being pressed and it's not the same as the old key:
-    if (keyData != 0 && keyData != previousKeyData) {
+    if (keyData != previousKeyData) {
       previousKeyData = keyData;
       if (key > 11 && key < 16){
         switch(key){
@@ -355,6 +345,7 @@ void keyboardRead(){
                 creditsIn -= 1;
                 updateCredit();
                 currentSelection = 0;
+                return;                                                                              //Please check if this works
               }
             }
             //If they do not have enough credits, then tell them to add more coins:
