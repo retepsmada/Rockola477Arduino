@@ -41,12 +41,6 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Take high when the reset button is pressed and keep high until another button is pressed
 #define ledResetReselect 13
 
-
-
-int MAXSIZE = 100;       
-int stack[100];     
-int top = -1;
-
 int moneyIn = 0;
 int creditsIn = 0;
 #define creditAmount 25
@@ -213,35 +207,38 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, LOW);
 }
 
-int isempty() {
-   if(top == -1)
-      return 1;
-   else
-      return 0;
-}
-   
-int isfull() {
-   if(top == MAXSIZE)
-      return 1;
-   else
-      return 0;
-}
+#define queueSize 100
+//This is our queue of records that the user has inputted:
+int queue[queueSize];
+//This is the index of the first element in queue:
+int start = 0;
+//This is the number of records in the queue:
+int numRecords = 0;
 
+inline int isempty() { return (numRecords == 0); }
+   
+inline int isfull() { return (numRecords == queueSize); }
+    
 int pop() {
-   int data;
-  
-   if(!isempty()) {
-      data = stack[top];
-      top = top - 1;   
-      return data;
-   } else {
-      return 0;
-   }
+    //Get the first element in the queue:
+    int data = queue[start];
+    //Increment start to mark that the first element has been popped from the queue:
+    start += 1;
+    //If start is queueSize, then it is no longer a valid index, so make it 0:
+    start %= queueSize;
+    //Finally, return the popped element:
+    return data;
 }
 
 int push(int data) {
-      top = top + 1;   
-      stack[top] = data;
+    //Get the index of where the new element should be:
+    int index = start+numRecords;
+    //Now, if index >= queueSize, then it is no longer a valid index, so subtract it by queueSize:
+    index %= queueSize;
+    //Set the new element:
+    queue[index] = data;
+    //Increment numRecords:
+    numRecords++;
 }
 
 
@@ -250,9 +247,9 @@ int push(int data) {
 // if a key is being held down, or has been released. Then we
 // can kind of emulate the operation of a computer keyboard.
 unsigned int previousKeyData = 0; // Stores last key pressed
-unsigned int holdCount, releaseCount = 0; // Count durations
-const unsigned int holdCountMax = 5; // Key hold limit
-const unsigned int releaseCountMax = 100; // Release limit
+unsigned int releaseCount = 0; // Count durations
+// Release limit
+#define releaseCountMax 100
 int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
@@ -283,7 +280,7 @@ int key;
 
 void keyboardRead(){
     // If the SX1509 INT pin goes low, a keypad button has
-  // been pressed:
+    // been pressed:
     // Use io.readKeypad() to get the raw keypad row/column
     keyData = io.readKeypad();
     // Then use io.getRow() and io.getCol() to parse that
@@ -293,11 +290,19 @@ void keyboardRead(){
     // Then plug row and column into keyMap to get which
     // key was pressed.
     key = keyMap[row][col];
+
+    //If no key is being pressed right now, then increment releaseCount, which counts the number of loops since we last pressed a key:
+    if (keyData == 0) {
+        releaseCount++;
+        //If we have not pressed a key in releaseCountMax loops, then we will say that we have released the previous key, which is marked by
+        if (releaseCount > releaseCountMax) previousKeyData = 0;
+    }
+    //Otherwise, if a key is being pressed, then the number of loops since we last pressed a key is 0:
+    else releaseCount = 0;
     
-    // If it's a new key pressed
-    if (keyData != previousKeyData) {
+    // If it's a key is being pressed and it's not the same as the old key:
+    if (keyData != 0 && keyData != previousKeyData) {
       previousKeyData = keyData;
-      holdCount = 0;
       if (key > 11 && key < 16){
         switch(key){
           case 12:
@@ -342,12 +347,16 @@ void keyboardRead(){
             updateCurrentSelection();
             //Selection is valid
             Serial.print(currentSelection);
+            //Push the new selection in only if they have a credit and the queue is not full:
             if (creditsIn){
-              clearSelection();
-              push(currentSelection);
-              creditsIn -= 1;
-              updateCredit();
+              if (!isfull()) {
+                clearSelection();
+                push(currentSelection);
+                creditsIn -= 1;
+                updateCredit();
+              }
             }
+            //If they do not have enough credits, then tell them to add more coins:
             else{
               digitalWrite(ledAddCoins, LOW);
             }
@@ -363,7 +372,4 @@ void keyboardRead(){
         }
       }
     }
-    
-previousKeyData = 0;
-keyData = 0;
 }
