@@ -84,16 +84,6 @@ void clearSelectionDisplay(){
   selectionDisplay.writeDisplay();
 }
 
-void updateCurrentSelection() {
-  //Add key as a digit to currentSelection:
-  currentSelection *= 10;
-  currentSelection += key;
-  //Write key to selectionDisplay and Serial:
-  selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-  selectionDisplay.writeDisplay();
-  Serial.print(key);
-}
-
 void updateCredit(){
   creditDisplay.print(creditsIn * 100);
   creditDisplay.writeDigitRaw(3,0);
@@ -278,6 +268,16 @@ void clearSelection(){
 unsigned int keyData;
 int key;
 
+void updateCurrentSelection() {
+  //Add key as a digit to currentSelection:
+  currentSelection *= 10;
+  currentSelection += key;
+  //Write key to selectionDisplay and Serial:
+  selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+  selectionDisplay.writeDisplay();
+  Serial.print(key);
+}
+
 void keyboardRead(){
     // If the SX1509 INT pin goes low, a keypad button has
     // been pressed:
@@ -354,6 +354,7 @@ void keyboardRead(){
                 push(currentSelection);
                 creditsIn -= 1;
                 updateCredit();
+                currentSelection = 0;
               }
             }
             //If they do not have enough credits, then tell them to add more coins:
