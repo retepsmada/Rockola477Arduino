@@ -239,7 +239,7 @@ int push(int data) {
 unsigned int previousKeyData = 0; // Stores last key pressed
 unsigned int releaseCount = 0; // Count durations
 // Release limit
-#define releaseCountMax 100
+#define releaseCountMax 300
 int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
@@ -247,14 +247,7 @@ void loop(){
   if (digitalRead(recordPlaying) == LOW && digitalRead(controlHome) == HIGH && !isempty()){
     recordSelect(pop());
   }
-  // If no keys have been pressed we'll continuously increment
-  //  releaseCount. Eventually creating a release, once the 
-  // count hits the max.
-  /*releaseCount++;
-  if (releaseCount >= releaseCountMax) {
-    releaseCount = 0;
-    previousKeyData = 0;
-  }*/
+
 }
 
 void clearSelection(){
@@ -345,7 +338,7 @@ void keyboardRead(){
                 creditsIn -= 1;
                 updateCredit();
                 currentSelection = 0;
-                return;                                                                              //Please check if this works
+                return;
               }
             }
             //If they do not have enough credits, then tell them to add more coins:
@@ -364,4 +357,16 @@ void keyboardRead(){
         }
       }
     }
+    else
+    {
+  // If no keys have been pressed we'll continuously increment
+  //  releaseCount. Eventually creating a release, once the 
+  // count hits the max.
+  releaseCount++;
+  if (releaseCount >= releaseCountMax) {
+    releaseCount = 0;
+    previousKeyData = 0;
+  }
+    }
+    previousKeyData = keyData;
 }
