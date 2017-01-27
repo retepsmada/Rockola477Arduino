@@ -239,7 +239,7 @@ int push(int data) {
 unsigned int previousKeyData = 0; // Stores last key pressed
 unsigned int releaseCount = 0; // Count durations
 // Release limit
-#define releaseCountMax 300
+#define releaseCountMax 1000
 int selectionDisplayCount = 1; //What display digit we're currently on
 
 void loop(){
@@ -268,6 +268,7 @@ void updateCurrentSelection() {
   //Write key to selectionDisplay and Serial:
   selectionDisplay.writeDigitNum(selectionDisplayCount, key);
   selectionDisplay.writeDisplay();
+  Serial.println("UCS");
   Serial.print(key);
 }
 
@@ -284,7 +285,7 @@ void keyboardRead(){
     // key was pressed.
     key = keyMap[row][col];
     
-    if (keyData != previousKeyData) {
+    if ((keyData != previousKeyData) && (keyData != 0) && (keyData != 1) && (keyData != 256) && (keyData != 1024)) {
       previousKeyData = keyData;
       if (key > 11 && key < 16){
         switch(key){
@@ -314,12 +315,15 @@ void keyboardRead(){
       else if (key == 11) {
         clearSelection();
         digitalWrite(ledAddCoins, HIGH);
+        digitalWrite(ledYourSelection, HIGH);
+        return;
       }
       else if(incorrectSelection == 0) {
         if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
           //Let the first digit be either a 1 or a 2:
           if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
             updateCurrentSelection();
+            digitalWrite(ledYourSelection, LOW);
           }
           //Let the second digit be 0-9:
           else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){
@@ -338,6 +342,7 @@ void keyboardRead(){
                 creditsIn -= 1;
                 updateCredit();
                 currentSelection = 0;
+                digitalWrite(ledYourSelection, HIGH);
                 return;
               }
             }
@@ -357,16 +362,15 @@ void keyboardRead(){
         }
       }
     }
-    else
-    {
-  // If no keys have been pressed we'll continuously increment
-  //  releaseCount. Eventually creating a release, once the 
-  // count hits the max.
-  releaseCount++;
-  if (releaseCount >= releaseCountMax) {
-    releaseCount = 0;
-    previousKeyData = 0;
-  }
+    else {
+      // If no keys have been pressed we'll continuously increment
+      //  releaseCount. Eventually creating a release, once the 
+      // count hits the max.
+      releaseCount++;
+      if (releaseCount >= releaseCountMax) {
+        releaseCount = 0;
+        previousKeyData = 0;
+        delay(1);
+      }
     }
-    previousKeyData = keyData;
 }
