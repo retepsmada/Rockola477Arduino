@@ -362,7 +362,7 @@ void keyboardRead(){
         }
       }
     }
-    else {
+    else if(keyData != 0) {
       // If no keys have been pressed we'll continuously increment
       //  releaseCount. Eventually creating a release, once the 
       // count hits the max.
