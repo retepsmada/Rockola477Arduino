@@ -62,6 +62,8 @@ int keyMap[KEY_ROWS][KEY_COLS] = {
     {12, 13, 14, 15}
 };
 
+#define NUM_KEYS 3
+int validKeyDatas[NUM_KEYS] = {257, 258, 259};
 
 Adafruit_7segment creditDisplay = Adafruit_7segment();
 Adafruit_7segment selectionDisplay = Adafruit_7segment();
@@ -285,7 +287,9 @@ void keyboardRead(){
     // key was pressed.
     key = keyMap[row][col];
     
-    if ((keyData != previousKeyData) && (keyData != 0) && (keyData != 1) && (keyData != 256) && (keyData != 1024)) {
+    boolean isKeyDataValid = false;
+    for (int i = 0; i < NUM_KEYS; i++) if (keyData == validKeyDatas[i]) isKeyDataValid = true;
+    if ((keyData != previousKeyData) && isKeyDataValid) {
       previousKeyData = keyData;
       if (key > 11 && key < 16){
         switch(key){
@@ -362,7 +366,7 @@ void keyboardRead(){
         }
       }
     }
-    else if(keyData != 0) {
+    else if(isKeyDataValid) {
       // If no keys have been pressed we'll continuously increment
       //  releaseCount. Eventually creating a release, once the 
       // count hits the max.
@@ -370,7 +374,7 @@ void keyboardRead(){
       if (releaseCount >= releaseCountMax) {
         releaseCount = 0;
         previousKeyData = 0;
-        delay(1);
+          delay(1);
       }
     }
 }
