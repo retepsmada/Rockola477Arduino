@@ -1,8 +1,9 @@
+#include <Key.h>
+#include <Keypad.h>
 #include <Wire.h>
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
 #include <gfxfont.h>
-#include <SparkFunSX1509.h>
 
 
 int incorrectSelection = 0;//goes to one if selection is incorrect
@@ -40,30 +41,9 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Take high when the reset button is pressed and keep high until another button is pressed
 #define ledResetReselect 13
 
-
 int moneyIn = 0;
 int creditsIn = 0;
 #define creditAmount 25
-
-
-// SX1509 I2C address (set by ADDR1 and ADDR0 (00 by default):
-const byte SX1509_ADDRESS = 0x3E;  // SX1509 I2C address
-SX1509 io; // Create an SX1509 object to be used throughout
-const byte ARDUINO_INTERRUPT_PIN = 2;
-
-#define KEY_ROWS 4 // Number of rows in the keypad matrix
-#define KEY_COLS 4 // Number of columns in the keypad matrix
-
-// keyMap maps row/column combinations to characters:
-int keyMap[KEY_ROWS][KEY_COLS] = {
-    {2, 10, 7, 11},
-    {1, 4, 6, 9},
-    {0, 3, 5, 8},
-    {12, 13, 14, 15}
-};
-
-#define NUM_KEYS 3
-int validKeyDatas[NUM_KEYS] = {257, 258, 259};
 
 Adafruit_7segment creditDisplay = Adafruit_7segment();
 Adafruit_7segment selectionDisplay = Adafruit_7segment();
@@ -93,6 +73,18 @@ void updateCredit(){
   creditDisplay.writeDisplay();
 }
 
+const byte rows = 4;
+const byte cols = 5;
+
+int keys[rows][cols] = {
+  {11,9,8,12,16},
+  {7,6,5,13,16},
+  {10,4,3,14,16},
+  {2,1,0,15,16}
+};
+byte rowPins[rows] = {1, 0, 2, A7}; //connect to the row pinouts of the keypad
+byte colPins[cols] = {A0, A1, A2, A3, A6}; //connect to the column pinouts of the keypad
+Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 
 void setup(){
   Serial.begin(9600);
@@ -108,22 +100,6 @@ void setup(){
   pinMode(controlStopSpin, OUTPUT);
   pinMode(controlPulse, INPUT);
   pinMode(recordPlaying, INPUT);
-
-
-  // If we fail to communicate, loop forever.
-  if (!io.begin(SX1509_ADDRESS)) while (1);
-  // Scan time range: 1-128 ms, powers of 2
-  byte scanTime = 8; // Scan time per row, in ms
-  // Debounce time range: 0.5 - 64 ms (powers of 2)
-  byte debounceTime = 1; // Debounce time
-  // Sleep time range: 128 ms - 8192 ms (powers of 2) 0=OFF
-  byte sleepTime = 0;
-  // Scan time must be greater than debounce time!
-  io.keypad(KEY_ROWS, KEY_COLS, 
-            sleepTime, scanTime, debounceTime);       
-  // Set up the Arduino interrupt pin as an input w/ 
-  // internal pull-up. (The SX1509 interrupt is active-low.)
-  pinMode(ARDUINO_INTERRUPT_PIN, INPUT_PULLUP);
 
   
   creditDisplay.begin(0x71);
@@ -275,21 +251,8 @@ void updateCurrentSelection() {
 }
 
 void keyboardRead(){
-    // If the SX1509 INT pin goes low, a keypad button has
-    // been pressed:
-    // Use io.readKeypad() to get the raw keypad row/column
-    keyData = io.readKeypad();
-    // Then use io.getRow() and io.getCol() to parse that
-    // data into row and column values.
-    byte row = io.getRow(keyData);
-    byte col = io.getCol(keyData);
-    // Then plug row and column into keyMap to get which
-    // key was pressed.
-    key = keyMap[row][col];
-    
-    boolean isKeyDataValid = false;
-    for (int i = 0; i < NUM_KEYS; i++) if (keyData == validKeyDatas[i]) isKeyDataValid = true;
-    if ((keyData != previousKeyData) && isKeyDataValid) {
+
+    if ((keyData != previousKeyData) && (key != NO_KEY)) {
       previousKeyData = keyData;
       if (key > 11 && key < 16){
         switch(key){
@@ -364,17 +327,6 @@ void keyboardRead(){
           ++selectionDisplayCount;
           if(selectionDisplayCount == 2){++selectionDisplayCount;}
         }
-      }
-    }
-    else if(isKeyDataValid) {
-      // If no keys have been pressed we'll continuously increment
-      //  releaseCount. Eventually creating a release, once the 
-      // count hits the max.
-      releaseCount++;
-      if (releaseCount >= releaseCountMax) {
-        releaseCount = 0;
-        previousKeyData = 0;
-          delay(1);
       }
     }
 }
