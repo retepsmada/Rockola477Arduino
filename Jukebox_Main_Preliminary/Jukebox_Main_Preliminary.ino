@@ -76,15 +76,15 @@ void updateCredit(){
 const byte rows = 4;
 const byte cols = 5;
 
-int keys[rows][cols] = {
-  {11,9,8,12,16},
-  {7,6,5,13,16},
-  {10,4,3,14,16},
-  {2,1,0,15,16}
+char keys[rows][cols] = {
+  {'R','9','8','N',' '},
+  {'7','6','5','D',' '},
+  {' ','4','3','Q',' '},
+  {'2','1','0','F',' '}
 };
-byte rowPins[rows] = {1, 0, 2, A7}; //connect to the row pinouts of the keypad
-byte colPins[cols] = {A0, A1, A2, A3, A6}; //connect to the column pinouts of the keypad
-Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
+byte rowPins[rows] = {2, 3, 4, 5}; //connect to the row pinouts of the keypad
+byte colPins[cols] = {8, 9, 10, 11, 12}; //connect to the column pinouts of the keypad
+Keypad keys2 = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 
 void setup(){
   Serial.begin(9600);
@@ -214,18 +214,20 @@ int push(int data) {
 // is a bit more advanced. We'll use these variables to check
 // if a key is being held down, or has been released. Then we
 // can kind of emulate the operation of a computer keyboard.
-unsigned int previousKeyData = 0; // Stores last key pressed
+int previousKey = 0; // Stores last key pressed
 unsigned int releaseCount = 0; // Count durations
 // Release limit
 #define releaseCountMax 1000
 int selectionDisplayCount = 1; //What display digit we're currently on
+
+char charKey;
+int key;
 
 void loop(){
   keyboardRead();
   if (digitalRead(recordPlaying) == LOW && digitalRead(controlHome) == HIGH && !isempty()){
     recordSelect(pop());
   }
-
 }
 
 void clearSelection(){
@@ -236,8 +238,7 @@ void clearSelection(){
   digitalWrite(ledResetReselect, HIGH);
 }
 
-unsigned int keyData;
-int key;
+
 
 void updateCurrentSelection() {
   //Add key as a digit to currentSelection:
@@ -251,21 +252,22 @@ void updateCurrentSelection() {
 }
 
 void keyboardRead(){
-
-    if ((keyData != previousKeyData) && (key != NO_KEY)) {
-      previousKeyData = keyData;
-      if (key > 11 && key < 16){
-        switch(key){
-          case 12:
+charKey = keys2.getKey();
+key = (int)charKey;
+    if ((key != previousKey) && (key != NO_KEY)) {
+      previousKey = key;
+      if (charKey == 'N','D','Q','F'){
+        switch(charKey){
+          case 'N':
             moneyIn += 5;
             break;
-          case 13:
+          case 'D':
             moneyIn += 10;
             break;
-          case 14:
+          case 'Q':
             moneyIn += 25;
             break;
-          case 15:
+          case 'F':
             moneyIn +=50;
             break;
         }
@@ -279,7 +281,7 @@ void keyboardRead(){
           Serial.println(creditsIn);
         }
       }
-      else if (key == 11) {
+      else if (charKey == 'R') {
         clearSelection();
         digitalWrite(ledAddCoins, HIGH);
         digitalWrite(ledYourSelection, HIGH);
@@ -291,6 +293,7 @@ void keyboardRead(){
           if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
             updateCurrentSelection();
             digitalWrite(ledYourSelection, LOW);
+            Serial.println(key);
           }
           //Let the second digit be 0-9:
           else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){
