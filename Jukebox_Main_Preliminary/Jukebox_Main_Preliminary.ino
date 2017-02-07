@@ -9,6 +9,7 @@
 int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
+int currentPlaying = 123;//The record that is currently playing
 int currentState = 0; //Curent state of pulse pin
 int lastState = 0;//Last state of pulse pin
 int errorValue = 0;//used to detect if there has been a mechanical error
@@ -173,6 +174,7 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, HIGH);
   delay(50);
   digitalWrite(controlStopSpin, LOW);
+  currentPlaying = currentSelection;
 }
 
 #define queueSize 100
@@ -228,6 +230,10 @@ void loop(){
   if (digitalRead(recordPlaying) == LOW && digitalRead(controlHome) == HIGH && !isempty()){
     recordSelect(pop());
   }
+  if((digitalRead(recordPlaying) == HIGH) && (digitalRead(controlHome) == LOW)){
+    selectionDisplay.print(currentPlaying);
+    selectionDisplay.writeDisplay();
+  }
 }
 
 void clearSelection(){
@@ -253,10 +259,10 @@ void updateCurrentSelection() {
 
 void keyboardRead(){
 charKey = keys2.getKey();
-key = (int)charKey;
+key = (int)charKey - 48;  //the char is just the raw ascii value so if we subtract 48 it is the origanal number
     if ((key != previousKey) && (key != NO_KEY)) {
-      previousKey = key;
-      if (charKey == 'N','D','Q','F'){
+      /*previousKey = key;*/
+      if ((charKey == 'N')||(charKey == 'D')||(charKey == 'Q')||(charKey == 'F')){
         switch(charKey){
           case 'N':
             moneyIn += 5;
