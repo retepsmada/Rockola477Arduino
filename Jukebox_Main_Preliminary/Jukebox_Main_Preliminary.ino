@@ -15,20 +15,20 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Pin Variables
 
 //Count pulses from opto encoder on carousel until the correct record is reached
-#define controlPulse 3
+#define controlPulse 0
 //Pulse to stop carosel spinning
-#define controlStopSpin 4
+#define controlStopSpin A0
 //Take high untill home is low to start spin
-#define controlStartSpin 5
+#define controlStartSpin A1
 //Take high to just rotate the carousel for record loading
-#define controlScan 6
+#define controlScan A2
 //Is high when the carousel is in the home position
-#define controlHome 7
+#define controlHome A3
 //Is low for side A and high for side B.
 //If you want B and it's A, just do one more full rotation
-#define controlSide 8
+#define controlSide A6
 //High when a record is playing
-#define recordPlaying 9
+#define recordPlaying A7
 
 //Pins A4 and A5 are automaticaly selected for use with the I2C displays and the multiplex board
 
