@@ -84,7 +84,7 @@ char keys[rows][cols] = {
   {'2','1','0','F',' '}
 };
 byte rowPins[rows] = {2, 3, 4, 5}; //connect to the row pinouts of the keypad
-byte colPins[cols] = {8, 9, 10, 11, 12}; //connect to the column pinouts of the keypad
+byte colPins[cols] = {6, 7, 8, 9, 10}; //connect to the column pinouts of the keypad
 Keypad keys2 = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 
 void setup(){
@@ -174,7 +174,6 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, HIGH);
   delay(50);
   digitalWrite(controlStopSpin, LOW);
-  currentPlaying = currentSelection;
 }
 
 #define queueSize 100
@@ -219,7 +218,7 @@ int push(int data) {
 int previousKey = 0; // Stores last key pressed
 unsigned int releaseCount = 0; // Count durations
 // Release limit
-#define releaseCountMax 1000
+#define releaseCountMax 500
 int selectionDisplayCount = 1; //What display digit we're currently on
 
 char charKey;
@@ -230,7 +229,7 @@ void loop(){
   if (digitalRead(recordPlaying) == LOW && digitalRead(controlHome) == HIGH && !isempty()){
     recordSelect(pop());
   }
-  if((digitalRead(recordPlaying) == HIGH) && (digitalRead(controlHome) == LOW)){
+  else if((digitalRead(recordPlaying) == HIGH) && (digitalRead(controlHome) == LOW)){
     selectionDisplay.print(currentPlaying);
     selectionDisplay.writeDisplay();
   }
@@ -336,6 +335,12 @@ key = (int)charKey - 48;  //the char is just the raw ascii value so if we subtra
           ++selectionDisplayCount;
           if(selectionDisplayCount == 2){++selectionDisplayCount;}
         }
+      }
+    }
+    else{
+      if(releaseCount <= releaseCountMax){
+        ++releaseCount;
+        delay(1);
       }
     }
 }
