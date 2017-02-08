@@ -83,8 +83,8 @@ char keys[rows][cols] = {
   {' ','4','3','Q',' '},
   {'2','1','0','F',' '}
 };
-byte rowPins[rows] = {2, 3, 4, 5}; //connect to the row pinouts of the keypad
-byte colPins[cols] = {6, 7, 8, 9, 10}; //connect to the column pinouts of the keypad
+byte rowPins[rows] = {4, 5, 6, 7}; //connect to the row pinouts of the keypad
+byte colPins[cols] = {8, 9, 10, 11, 12}; //connect to the column pinouts of the keypad
 Keypad keys2 = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 
 void setup(){
@@ -174,6 +174,9 @@ void recordSelect(int id){
   digitalWrite(controlStopSpin, HIGH);
   delay(50);
   digitalWrite(controlStopSpin, LOW);
+  selectionDisplay.print(currentPlaying); //just testing this here
+  selectionDisplay.writeDisplay();
+  digitalWrite(ledRecordPlaying, LOW);
 }
 
 #define queueSize 100
@@ -208,6 +211,7 @@ int push(int data) {
     queue[index] = data;
     //Increment numRecords:
     numRecords++;
+    Serial.println("Pushed");
 }
 
 
@@ -225,13 +229,9 @@ char charKey;
 int key;
 
 void loop(){
-  keyboardRead();
-  if (digitalRead(recordPlaying) == LOW && digitalRead(controlHome) == HIGH && !isempty()){
-    recordSelect(pop());
-  }
-  else if((digitalRead(recordPlaying) == HIGH) && (digitalRead(controlHome) == LOW)){
-    selectionDisplay.print(currentPlaying);
-    selectionDisplay.writeDisplay();
+  keyboardRead(); //Still cannot get the key 0
+  if ((digitalRead(recordPlaying) == LOW) && (digitalRead(controlHome) == HIGH) && !isempty()){
+    recordSelect(pop());//The number is not getting poped from the queue
   }
 }
 
@@ -260,7 +260,7 @@ void keyboardRead(){
 charKey = keys2.getKey();
 key = (int)charKey - 48;  //the char is just the raw ascii value so if we subtract 48 it is the origanal number
     if ((key != previousKey) && (key != NO_KEY)) {
-      /*previousKey = key;*/
+      previousKey = key;
       if ((charKey == 'N')||(charKey == 'D')||(charKey == 'Q')||(charKey == 'F')){
         switch(charKey){
           case 'N':
@@ -318,6 +318,7 @@ key = (int)charKey - 48;  //the char is just the raw ascii value so if we subtra
                 updateCredit();
                 currentSelection = 0;
                 digitalWrite(ledYourSelection, HIGH);
+                Serial.println("Removed");
                 return;
               }
             }
@@ -340,7 +341,11 @@ key = (int)charKey - 48;  //the char is just the raw ascii value so if we subtra
     else{
       if(releaseCount <= releaseCountMax){
         ++releaseCount;
-        delay(1);
+        delay(2);
+      }
+      while(releaseCount == releaseCountMax){
+        previousKey = 0;
+        releaseCount = 0;
       }
     }
 }
