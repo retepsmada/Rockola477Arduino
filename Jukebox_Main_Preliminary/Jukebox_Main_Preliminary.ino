@@ -200,6 +200,7 @@ int pop() {
     start %= queueSize;
     //Finally, return the popped element:
     return data;
+    (Serial.println("Popped");
 }
 
 int push(int data) {
