@@ -46,6 +46,7 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 
 //These are the functions and definitions that control the two displays
 
+int selectionDisplayCount = 1; //What display digit we're currently on
 Adafruit_7segment creditDisplay = Adafruit_7segment();
 Adafruit_7segment selectionDisplay = Adafruit_7segment();
 
@@ -74,6 +75,24 @@ void updateCredit(){
   creditDisplay.writeDisplay();
 }
 
+//These functions write specific numbers to the displays and also modify some variables
+void clearSelection(){
+  clearSelectionDisplay();
+  selectionDisplayCount = 1;
+  currentSelection = 0;
+  incorrectSelection = 0;
+  digitalWrite(ledResetReselect, HIGH);
+}
+
+void updateCurrentSelection() {
+  //Add key as a digit to currentSelection:
+  currentSelection *= 10;
+  currentSelection += key;
+  //Write key to selectionDisplay:
+  selectionDisplay.writeDigitNum(selectionDisplayCount, key);
+  selectionDisplay.writeDisplay();
+}
+
 //This is the keymap for the multiplex of all the buttons in the jukebox
 
 const byte rows = 4;
@@ -88,6 +107,13 @@ char keys[rows][cols] = {
 byte rowPins[rows] = {4, 5, 6, 7}; //connect to the row pinouts of the keypad
 byte colPins[cols] = {8, 9, 10, 11, 12}; //connect to the column pinouts of the keypad
 Keypad keys2 = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
+
+int previousKey = 0; // Stores last key pressed in int format
+char charKey; //Stores the current key in char format
+int key; //Stores the current key in int format
+unsigned int releaseCount = 0; // Count durations
+#define releaseCountMax 500// Release limit
+
 
 void setup(){
   Serial.begin(9600);
@@ -104,7 +130,7 @@ void setup(){
   pinMode(controlPulse, INPUT);
   pinMode(recordPlaying, INPUT);
 
-  
+  //Here we make sure that everything is blank at startup
   creditDisplay.begin(0x71);
   selectionDisplay.begin(0x70);
 
@@ -117,6 +143,7 @@ void setup(){
   digitalWrite(ledYourSelection, HIGH);
 }
 
+//This is the code that selects records, it converts the input to be usable and then selects the record
 
 //This is a datatype that can be either "A" or "B".
 enum side { A, B };
@@ -155,16 +182,15 @@ void recordSelect(int id){
   recordFromId.side = (digits[2] == 1) ? A : B;
   //This sets the record number to the ones digit times 10 plus the tens digit.
   recordFromId.num = digits[0]*10+digits[1]+1;
-  Serial.println(recordFromId.num);
-  //if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))) {
+  if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))) {
   if (digitalRead(controlSide) ^ recordFromId.side) {
     digitalWrite(controlStartSpin, HIGH);
-    while(digitalRead(controlHome) != 0);
+    while(digitalRead(controlHome) != LOW);
     digitalWrite(controlStartSpin, LOW);
-    while(digitalRead(controlHome) != 1);
+    while(digitalRead(controlHome) != HIGH);
   }
   digitalWrite(controlStartSpin, HIGH);
-  while(digitalRead(controlHome) != 0);
+  while(digitalRead(controlHome) != LOW);
   digitalWrite(controlStartSpin, LOW);
   while(recordFromId.num != pulseCount){
     currentState = digitalRead(controlPulse);// this works
@@ -179,7 +205,11 @@ void recordSelect(int id){
   selectionDisplay.print(currentPlaying); //just testing this here
   selectionDisplay.writeDisplay();
   digitalWrite(ledRecordPlaying, LOW);
+  pulseCount = 0;
+  lastState = 0;
 }
+
+//This is the queue code
 
 #define queueSize 100
 //This is our queue of records that the user has inputted:
@@ -224,18 +254,7 @@ int push(int data) {
   Serial.println(data);
 }
 
-// Compared to the keypad in keypad.ino, this keypad example
-// is a bit more advanced. We'll use these variables to check
-// if a key is being held down, or has been released. Then we
-// can kind of emulate the operation of a computer keyboard.
-int previousKey = 0; // Stores last key pressed
-unsigned int releaseCount = 0; // Count durations
-// Release limit
-#define releaseCountMax 500
-int selectionDisplayCount = 1; //What display digit we're currently on
 
-char charKey;
-int key;
 
 void loop(){
   keyboardRead(); //Still cannot get the key 0
@@ -245,23 +264,9 @@ void loop(){
   }
 }
 
-void clearSelection(){
-  clearSelectionDisplay();
-  selectionDisplayCount = 1;
-  currentSelection = 0;
-  incorrectSelection = 0;
-  digitalWrite(ledResetReselect, HIGH);
-}
-
-void updateCurrentSelection() {
-  //Add key as a digit to currentSelection:
-  currentSelection *= 10;
-  currentSelection += key;
-  //Write key to selectionDisplay and Serial:
-  selectionDisplay.writeDigitNum(selectionDisplayCount, key);
-  selectionDisplay.writeDisplay();
-}
-
+//This fucntion reads the keyboard, coin switches, and the PCB buttons
+//It adds and subtracts credits accordingly and stores the current selection
+//When a valid selection is made it stores it as currentSelection and subtracts one credit from creditsIn
 void keyboardRead(){
   charKey = keys2.getKey();
   key = (int)charKey - '0';  //the char is just the raw ascii value so if we subtract '0' it is the original number
