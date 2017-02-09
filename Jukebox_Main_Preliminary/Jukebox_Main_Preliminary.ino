@@ -200,7 +200,7 @@ int pop() {
     start %= queueSize;
     //Finally, return the popped element:
     return data;
-    (Serial.println("Popped");
+    Serial.println("Popped");
 }
 
 int push(int data) {
@@ -213,6 +213,7 @@ int push(int data) {
     //Increment numRecords:
     numRecords++;
     Serial.println("Pushed");
+    Serial.println(queue[0]);
 }
 
 
@@ -232,6 +233,7 @@ int key;
 void loop(){
   keyboardRead(); //Still cannot get the key 0
   if ((digitalRead(recordPlaying) == LOW) && (digitalRead(controlHome) == HIGH) && !isempty()){
+    Serial.println("recorded");
     recordSelect(pop());//The number is not getting poped from the queue
   }
 }
@@ -253,8 +255,6 @@ void updateCurrentSelection() {
   //Write key to selectionDisplay and Serial:
   selectionDisplay.writeDigitNum(selectionDisplayCount, key);
   selectionDisplay.writeDisplay();
-  Serial.println("UCS");
-  Serial.print(key);
 }
 
 void keyboardRead(){
