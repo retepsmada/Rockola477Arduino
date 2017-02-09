@@ -5,7 +5,6 @@
 #include <Adafruit_GFX.h>
 #include <gfxfont.h>
 
-
 int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
@@ -155,7 +154,7 @@ void recordSelect(int id){
   recordFromId.num = digits[0]*10+digits[1]+1;
 
   //if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))) {
-  if (digitalRead(controlSide) == 1-recordFromId.side) {
+  if (digitalRead(controlSide) ^ recordFromId.side) {
     digitalWrite(controlStartSpin, HIGH);
     while(digitalRead(controlHome) != 0);
     digitalWrite(controlStartSpin, LOW);
@@ -192,30 +191,30 @@ inline int isempty() { return (numRecords == 0); }
 inline int isfull() { return (numRecords == queueSize); }
     
 int pop() {
-    //Get the first element in the queue:
-    int data = queue[start];
-    //Increment start to mark that the first element has been popped from the queue:
-    start += 1;
-    //If start is queueSize, then it is no longer a valid index, so make it 0:
-    start %= queueSize;
-    //Finally, return the popped element:
-    return data;
-    Serial.println("Popped");
+  //Get the first element in the queue:
+  int data = queue[start];
+  //Increment start to mark that the first element has been popped from the queue:
+  start += 1;
+  //If start is queueSize, then it is no longer a valid index, so make it 0:
+  start %= queueSize;
+  Serial.println("Popped");
+  Serial.println(data);
+  //Finally, return the popped element:
+  return data;
 }
 
 int push(int data) {
-    //Get the index of where the new element should be:
-    int index = start+numRecords;
-    //Now, if index >= queueSize, then it is no longer a valid index, so subtract it by queueSize:
-    index %= queueSize;
-    //Set the new element:
-    queue[index] = data;
-    //Increment numRecords:
-    numRecords++;
-    Serial.println("Pushed");
-    Serial.println(queue[0]);
+  //Get the index of where the new element should be:
+  int index = start+numRecords;
+  //Now, if index >= queueSize, then it is no longer a valid index, so subtract it by queueSize:
+  index %= queueSize;
+  //Set the new element:
+  queue[index] = data;
+  //Increment numRecords:
+  numRecords++;
+  Serial.println("Pushed");
+  Serial.println(queue[index]);
 }
-
 
 // Compared to the keypad in keypad.ino, this keypad example
 // is a bit more advanced. We'll use these variables to check
@@ -246,8 +245,6 @@ void clearSelection(){
   digitalWrite(ledResetReselect, HIGH);
 }
 
-
-
 void updateCurrentSelection() {
   //Add key as a digit to currentSelection:
   currentSelection *= 10;
@@ -258,95 +255,97 @@ void updateCurrentSelection() {
 }
 
 void keyboardRead(){
-charKey = keys2.getKey();
-key = (int)charKey - 48;  //the char is just the raw ascii value so if we subtract 48 it is the origanal number
-    if ((key != previousKey) && (key != NO_KEY)) {
-      previousKey = key;
-      if ((charKey == 'N')||(charKey == 'D')||(charKey == 'Q')||(charKey == 'F')){
-        switch(charKey){
-          case 'N':
-            moneyIn += 5;
-            break;
-          case 'D':
-            moneyIn += 10;
-            break;
-          case 'Q':
-            moneyIn += 25;
-            break;
-          case 'F':
-            moneyIn +=50;
-            break;
-        }
-        Serial.print("Money: ");
-        Serial.println(moneyIn);
-        while (moneyIn >= creditAmount){
-          creditsIn += 1;
-          moneyIn -= creditAmount;
-          updateCredit();
-          Serial.print("Credits: ");
-          Serial.println(creditsIn);
-        }
+  charKey = keys2.getKey();
+  key = (int)charKey - '0';  //the char is just the raw ascii value so if we subtract '0' it is the original number
+  if ((key != previousKey) && (key != NO_KEY)) {
+    //Clear releaseCount and set previousKey:
+    previousKey = key;
+    releaseCount = 0;
+    if ((charKey == 'N')||(charKey == 'D')||(charKey == 'Q')||(charKey == 'F')){
+      switch(charKey){
+        case 'N':
+          moneyIn += 5;
+          break;
+        case 'D':
+          moneyIn += 10;
+          break;
+        case 'Q':
+          moneyIn += 25;
+          break;
+        case 'F':
+          moneyIn +=50;
+          break;
       }
-      else if (charKey == 'R') {
-        clearSelection();
-        digitalWrite(ledAddCoins, HIGH);
-        digitalWrite(ledYourSelection, HIGH);
-        return;
+      Serial.print("Money: ");
+      Serial.println(moneyIn);
+      while (moneyIn >= creditAmount){
+        creditsIn += 1;
+        moneyIn -= creditAmount;
+        updateCredit();
+        Serial.print("Credits: ");
+        Serial.println(creditsIn);
       }
-      else if(incorrectSelection == 0) {
-        if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
-          //Let the first digit be either a 1 or a 2:
-          if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
-            updateCurrentSelection();
-            digitalWrite(ledYourSelection, LOW);
-            Serial.println(key);
-          }
-          //Let the second digit be 0-9:
-          else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){
-            updateCurrentSelection();
-          }
-          //Let the third digit be 0-7:
-          else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
-            updateCurrentSelection();
-            //Selection is valid
-            Serial.print(currentSelection);
-            //Push the new selection in only if they have a credit and the queue is not full:
-            if (creditsIn){
-              if (!isfull()) {
-                clearSelection();
-                push(currentSelection);
-                creditsIn -= 1;
-                updateCredit();
-                currentSelection = 0;
-                digitalWrite(ledYourSelection, HIGH);
-                Serial.println("Removed");
-                return;
-              }
-            }
-            //If they do not have enough credits, then tell them to add more coins:
-            else{
-              digitalWrite(ledAddCoins, LOW);
+    }
+    else if (charKey == 'R') {
+      clearSelection();
+      digitalWrite(ledAddCoins, HIGH);
+      digitalWrite(ledYourSelection, HIGH);
+      return;
+    }
+    else if(incorrectSelection == 0) {
+      if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
+        //Let the first digit be either a 1 or a 2:
+        if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
+          updateCurrentSelection();
+          digitalWrite(ledYourSelection, LOW);
+          Serial.println(key);
+        }
+        //Let the second digit be 0-9:
+        else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){
+          updateCurrentSelection();
+        }
+        //Let the third digit be 0-7:
+        else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
+          updateCurrentSelection();
+          //Selection is valid
+          Serial.print(currentSelection);
+          //Push the new selection in only if they have a credit and the queue is not full:
+          if (creditsIn){
+            if (!isfull()) {
+              clearSelection();
+              push(currentSelection);
+              creditsIn -= 1;
+              updateCredit();
+              currentSelection = 0;
+              digitalWrite(ledYourSelection, HIGH);
+              Serial.println("Removed");
+              return;
             }
           }
-          //If one of the digits does not match the given criteria, set incorrectSelection:
+          //If they do not have enough credits, then tell them to add more coins:
           else{
-            digitalWrite(ledResetReselect, LOW);
-            incorrectSelection = 1;
+            digitalWrite(ledAddCoins, LOW);
           }
-          
-          ++selectionDisplayCount;
-          if(selectionDisplayCount == 2){++selectionDisplayCount;}
         }
+        //If one of the digits does not match the given criteria, set incorrectSelection:
+        else{
+          digitalWrite(ledResetReselect, LOW);
+          incorrectSelection = 1;
+        }
+
+        ++selectionDisplayCount;
+        if(selectionDisplayCount == 2){++selectionDisplayCount;}
       }
     }
-    else{
-      if(releaseCount <= releaseCountMax){
-        ++releaseCount;
-        delay(2);
-      }
-      while(releaseCount == releaseCountMax){
-        previousKey = 0;
-        releaseCount = 0;
-      }
+  }
+  //If there is no key or we are still pressing the same key:
+  else {
+    //Increment releaseCount:
+    releaseCount++;
+    //If releaseCount reaches the max, reset so that the key can be pressed again:
+    if (releaseCount >= releaseCountMax) {
+      previousKey = 0;
+      releaseCount = 0;
     }
+  }
 }
