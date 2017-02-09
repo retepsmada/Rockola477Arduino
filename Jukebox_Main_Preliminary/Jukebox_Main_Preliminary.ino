@@ -216,10 +216,14 @@ int push(int data) {
   index %= queueSize;
   //Set the new element:
   queue[index] = data;
+  //Debugging:
+  Serial.println("Pushed");
+  Serial.println(data);
+  Serial.println(queue[index]);
   //Increment numRecords:
   numRecords++;
   //Debugging:
-  Serial.println("Pushed");
+  Serial.println("Pushed (2)");
   Serial.println(queue[index]);
 }
 
