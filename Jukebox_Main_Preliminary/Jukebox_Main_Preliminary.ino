@@ -5,6 +5,9 @@
 #include <Adafruit_GFX.h>
 #include <gfxfont.h>
 
+int moneyIn = 0;
+int creditsIn = 0;
+#define creditAmount 25
 int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
@@ -41,9 +44,7 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Take high when the reset button is pressed and keep high until another button is pressed
 #define ledResetReselect 13
 
-int moneyIn = 0;
-int creditsIn = 0;
-#define creditAmount 25
+//These are the functions and definitions that control the two displays
 
 Adafruit_7segment creditDisplay = Adafruit_7segment();
 Adafruit_7segment selectionDisplay = Adafruit_7segment();
@@ -72,6 +73,8 @@ void updateCredit(){
   creditDisplay.writeDigitRaw(4,0);
   creditDisplay.writeDisplay();
 }
+
+//This is the keymap for the multiplex of all the buttons in the jukebox
 
 const byte rows = 4;
 const byte cols = 5;
@@ -152,7 +155,7 @@ void recordSelect(int id){
   recordFromId.side = (digits[2] == 1) ? A : B;
   //This sets the record number to the ones digit times 10 plus the tens digit.
   recordFromId.num = digits[0]*10+digits[1]+1;
-
+  Serial.println(recordFromId.num);
   //if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))) {
   if (digitalRead(controlSide) ^ recordFromId.side) {
     digitalWrite(controlStartSpin, HIGH);
@@ -237,7 +240,7 @@ void loop(){
   keyboardRead(); //Still cannot get the key 0
   if ((digitalRead(recordPlaying) == LOW) && (digitalRead(controlHome) == HIGH) && !isempty()){
     Serial.println("recorded");
-    recordSelect(pop());//The number is not getting poped from the queue
+    recordSelect(pop());
   }
 }
 
