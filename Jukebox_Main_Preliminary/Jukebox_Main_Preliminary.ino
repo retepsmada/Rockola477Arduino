@@ -216,15 +216,12 @@ int push(int data) {
   index %= queueSize;
   //Set the new element:
   queue[index] = data;
-  //Debugging:
-  Serial.println("Pushed");
-  Serial.println(data);
-  Serial.println(queue[index]);
   //Increment numRecords:
   numRecords++;
   //Debugging:
-  Serial.println("Pushed (2)");
+  Serial.println("Pushed");
   Serial.println(queue[index]);
+  Serial.println(data);
 }
 
 // Compared to the keypad in keypad.ino, this keypad example
@@ -323,8 +320,8 @@ void keyboardRead(){
           //Push the new selection in only if they have a credit and the queue is not full:
           if (creditsIn){
             if (!isfull()) {
-              clearSelection();
               push(currentSelection);
+              clearSelection();
               creditsIn -= 1;
               updateCredit();
               currentSelection = 0;
