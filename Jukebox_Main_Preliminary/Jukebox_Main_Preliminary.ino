@@ -197,6 +197,9 @@ int pop() {
   start += 1;
   //If start is queueSize, then it is no longer a valid index, so make it 0:
   start %= queueSize;
+  //Decrement numRecords:
+  numRecords--;
+  //Debugging:
   Serial.println("Popped");
   Serial.println(data);
   //Finally, return the popped element:
@@ -212,6 +215,7 @@ int push(int data) {
   queue[index] = data;
   //Increment numRecords:
   numRecords++;
+  //Debugging:
   Serial.println("Pushed");
   Serial.println(queue[index]);
 }
