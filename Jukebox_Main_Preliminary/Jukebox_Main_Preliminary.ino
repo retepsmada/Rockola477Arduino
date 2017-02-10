@@ -5,13 +5,13 @@
 #include <Adafruit_GFX.h>
 #include <gfxfont.h>
 
-int moneyIn = 0;
-int creditsIn = 0;
-#define creditAmount 25
+int moneyIn = 0;//In cents how much money is in the machine if there is less than one credit
+int creditsIn = 0;//Credits, or plays that the user has
+#define creditAmount 25//The amount of cents it takes to make one credit
 int incorrectSelection = 0;//goes to one if selection is incorrect
 int pulseCount = 0;//Amount of pulses on the pulse pin in one selection cycle
 int currentSelection = 0;//Current record displayed on screen
-int currentPlaying = 123;//The record that is currently playing
+int currentPlaying = 999;//The record that is currently playing
 int currentState = 0; //Curent state of pulse pin
 int lastState = 0;//Last state of pulse pin
 int errorValue = 0;//used to detect if there has been a mechanical error
@@ -36,13 +36,38 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Pins A4 and A5 are automaticaly selected for use with the I2C displays and the multiplex board
 
 //Take high when the selection display is showing the selection just made
-#define ledYourSelection 10
+#define ledYourSelection 3
 //Take high when the selection display is showing the record that is currently playing
-#define ledRecordPlaying 11
+#define ledRecordPlaying 2
 //Take high for a certain amount of time if a button is pressed and unitMemory is less than unitsPerPlay
 #define ledAddCoins 12
 //Take high when the reset button is pressed and keep high until another button is pressed
 #define ledResetReselect 13
+
+
+//This is the keymap for the multiplex of all the buttons in the jukebox
+
+const byte rows = 4;
+const byte cols = 5;
+
+char keys[rows][cols] = {
+  {'R','9','8','N',' '},
+  {'7','6','5','D',' '},
+  {' ','4','3','Q',' '},
+  {'2','1','0','F',' '}
+};
+byte rowPins[rows] = {4, 5, 6, 7}; //connect to the row pinouts of the keypad
+byte colPins[cols] = {8, 9, 10, 11, 12}; //connect to the column pinouts of the keypad
+Keypad keys2 = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
+
+int previousKey = 0; // Stores last key pressed in int format
+char charKey; //Stores the current key in char format
+int key; //Stores the current key in int format
+unsigned int releaseCount = 0; // Count durations
+#define releaseCountMax 500// Release limit
+unsigned int holdCount = 0;//maximum hold time
+
+
 
 //These are the functions and definitions that control the two displays
 
@@ -92,27 +117,6 @@ void updateCurrentSelection() {
   selectionDisplay.writeDigitNum(selectionDisplayCount, key);
   selectionDisplay.writeDisplay();
 }
-
-//This is the keymap for the multiplex of all the buttons in the jukebox
-
-const byte rows = 4;
-const byte cols = 5;
-
-char keys[rows][cols] = {
-  {'R','9','8','N',' '},
-  {'7','6','5','D',' '},
-  {' ','4','3','Q',' '},
-  {'2','1','0','F',' '}
-};
-byte rowPins[rows] = {4, 5, 6, 7}; //connect to the row pinouts of the keypad
-byte colPins[cols] = {8, 9, 10, 11, 12}; //connect to the column pinouts of the keypad
-Keypad keys2 = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
-
-int previousKey = 0; // Stores last key pressed in int format
-char charKey; //Stores the current key in char format
-int key; //Stores the current key in int format
-unsigned int releaseCount = 0; // Count durations
-#define releaseCountMax 500// Release limit
 
 
 void setup(){
@@ -182,33 +186,33 @@ void recordSelect(int id){
   recordFromId.side = (digits[2] == 1) ? A : B;
   //This sets the record number to the ones digit times 10 plus the tens digit.
   recordFromId.num = digits[0]*10+digits[1]+1;
-  if (((recordFromId.side == 0) && (digitalRead(controlSide) == 1)) || ((recordFromId.side == 1) && (digitalRead(controlSide) == 0))) {
-  if (digitalRead(controlSide) ^ recordFromId.side) {
-    digitalWrite(controlStartSpin, HIGH);
-    while(digitalRead(controlHome) != LOW);
-    digitalWrite(controlStartSpin, LOW);
-    while(digitalRead(controlHome) != HIGH);
-  }
-  digitalWrite(controlStartSpin, HIGH);
-  while(digitalRead(controlHome) != LOW);
-  digitalWrite(controlStartSpin, LOW);
-  while(recordFromId.num != pulseCount){
-    currentState = digitalRead(controlPulse);// this works
-    if (currentState != lastState && currentState == HIGH) {
-      ++pulseCount;
-    }
-    lastState = currentState;
-  }
-  digitalWrite(controlStopSpin, HIGH);
-  delay(50);
-  digitalWrite(controlStopSpin, LOW);
-  selectionDisplay.print(currentPlaying); //just testing this here
-  selectionDisplay.writeDisplay();
-  digitalWrite(ledRecordPlaying, LOW);
-  pulseCount = 0;
-  lastState = 0;
+      digitalWrite(controlStartSpin, HIGH);
+      delay(30);
+      if (digitalRead(controlSide) ^ recordFromId.side) {
+        while(digitalRead(controlHome) == HIGH);
+        digitalWrite(controlStartSpin, LOW);
+        while(digitalRead(controlHome) == LOW);
+        digitalWrite(controlStartSpin, HIGH);
+      }
+      
+      while(digitalRead(controlHome) == HIGH);
+      digitalWrite(controlStartSpin, LOW);
+      while(recordFromId.num != pulseCount){
+        currentState = digitalRead(controlPulse);// this works
+        if (currentState != lastState && currentState == HIGH) {
+          ++pulseCount;
+        }
+        lastState = currentState;
+      }
+      digitalWrite(controlStopSpin, HIGH);
+      delay(50);
+      digitalWrite(controlStopSpin, LOW);
+      selectionDisplay.print(currentPlaying); //just testing this here
+      selectionDisplay.writeDisplay();
+      digitalWrite(ledRecordPlaying, LOW);
+      pulseCount = 0;
+      lastState = 0;
 }
-
 //This is the queue code
 
 #define queueSize 100
@@ -219,9 +223,9 @@ int start = 0;
 //This is the number of records in the queue:
 int numRecords = 0;
 
-inline int isempty() { return (numRecords == 0); }
+static inline int isempty() { return (numRecords == 0); }
    
-inline int isfull() { return (numRecords == queueSize); }
+static inline int isfull() { return (numRecords == queueSize); }
     
 int pop() {
   //Get the first element in the queue:
@@ -257,8 +261,8 @@ int push(int data) {
 
 
 void loop(){
-  keyboardRead(); //Still cannot get the key 0
-  if ((digitalRead(recordPlaying) == LOW) && (digitalRead(controlHome) == HIGH) && !isempty()){
+  keyboardRead();
+  if ((digitalRead(recordPlaying) == 0) && (digitalRead(controlHome) == 1) && !isempty()){
     Serial.println("recorded");
     recordSelect(pop());
   }
@@ -270,7 +274,7 @@ void loop(){
 void keyboardRead(){
   charKey = keys2.getKey();
   key = (int)charKey - '0';  //the char is just the raw ascii value so if we subtract '0' it is the original number
-  if ((key != previousKey) && (key != NO_KEY)) {
+  if (key != previousKey) {
     //Clear releaseCount and set previousKey:
     previousKey = key;
     releaseCount = 0;
@@ -303,6 +307,7 @@ void keyboardRead(){
       clearSelection();
       digitalWrite(ledAddCoins, HIGH);
       digitalWrite(ledYourSelection, HIGH);
+      digitalWrite(ledResetReselect, HIGH);
       return;
     }
     else if(incorrectSelection == 0) {
