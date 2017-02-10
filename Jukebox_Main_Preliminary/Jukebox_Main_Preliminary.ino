@@ -44,31 +44,6 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Take high when the reset button is pressed and keep high until another button is pressed
 #define ledResetReselect 13
 
-
-
-//This is the keymap for the multiplex of all the buttons in the jukebox
-
-const byte rows = 4;
-const byte cols = 5;
-
-char keys[rows][cols] = {
-  {'R','9','8','N',' '},
-  {'7','6','5','D',' '},
-  {' ','4','3','Q',' '},
-  {'2','1','0','F',' '}
-};
-byte rowPins[rows] = {4, 5, 6, 7}; //connect to the row pinouts of the keypad
-byte colPins[cols] = {8, 9, 10, 11, 12}; //connect to the column pinouts of the keypad
-Keypad keys2 = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
-
-int previousKey = 0; // Stores last key pressed in int format
-char charKey; //Stores the current key in char format
-int key; //Stores the current key in int format
-unsigned int releaseCount = 0; // Count durations
-#define releaseCountMax 2000// Release limit
-
-
-
 //These are the functions and definitions that control the two displays
 
 int selectionDisplayCount = 1; //What display digit we're currently on
@@ -117,6 +92,28 @@ void updateCurrentSelection() {
   selectionDisplay.writeDigitNum(selectionDisplayCount, key);
   selectionDisplay.writeDisplay();
 }
+
+//This is the keymap for the multiplex of all the buttons in the jukebox
+
+const byte rows = 4;
+const byte cols = 5;
+
+char keys[rows][cols] = {
+  {'R','9','8','N',' '},
+  {'7','6','5','D',' '},
+  {' ','4','3','Q',' '},
+  {'2','1','0','F',' '}
+};
+byte rowPins[rows] = {4, 5, 6, 7}; //connect to the row pinouts of the keypad
+byte colPins[cols] = {8, 9, 10, 11, 12}; //connect to the column pinouts of the keypad
+Keypad keys2 = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
+
+int previousKey = 0; // Stores last key pressed in int format
+char charKey; //Stores the current key in char format
+int key; //Stores the current key in int format
+unsigned int releaseCount = 0; // Count durations
+#define releaseCountMax 500// Release limit
+
 
 void setup(){
   Serial.begin(9600);
@@ -259,4 +256,109 @@ int push(int data) {
 
 
 
+void loop(){
+  keyboardRead(); //Still cannot get the key 0
+  if ((digitalRead(recordPlaying) == LOW) && (digitalRead(controlHome) == HIGH) && !isempty()){
+    Serial.println("recorded");
+    recordSelect(pop());
+  }
+}
 
+//This fucntion reads the keyboard, coin switches, and the PCB buttons
+//It adds and subtracts credits accordingly and stores the current selection
+//When a valid selection is made it stores it as currentSelection and subtracts one credit from creditsIn
+void keyboardRead(){
+  charKey = keys2.getKey();
+  key = (int)charKey - '0';  //the char is just the raw ascii value so if we subtract '0' it is the original number
+  if ((key != previousKey) && (key != NO_KEY)) {
+    //Clear releaseCount and set previousKey:
+    previousKey = key;
+    releaseCount = 0;
+    if ((charKey == 'N')||(charKey == 'D')||(charKey == 'Q')||(charKey == 'F')){
+      switch(charKey){
+        case 'N':
+          moneyIn += 5;
+          break;
+        case 'D':
+          moneyIn += 10;
+          break;
+        case 'Q':
+          moneyIn += 25;
+          break;
+        case 'F':
+          moneyIn +=50;
+          break;
+      }
+      Serial.print("Money: ");
+      Serial.println(moneyIn);
+      while (moneyIn >= creditAmount){
+        creditsIn += 1;
+        moneyIn -= creditAmount;
+        updateCredit();
+        Serial.print("Credits: ");
+        Serial.println(creditsIn);
+      }
+    }
+    else if (charKey == 'R') {
+      clearSelection();
+      digitalWrite(ledAddCoins, HIGH);
+      digitalWrite(ledYourSelection, HIGH);
+      return;
+    }
+    else if(incorrectSelection == 0) {
+      if (key < 10 && key >= 0 && selectionDisplayCount <= 4) {
+        //Let the first digit be either a 1 or a 2:
+        if ((selectionDisplayCount == 1)&&(key >= 1 && key <= 2)) {
+          updateCurrentSelection();
+          digitalWrite(ledYourSelection, LOW);
+          Serial.println(key);
+        }
+        //Let the second digit be 0-9:
+        else if ((selectionDisplayCount == 3)&&(key >= 0 && key <= 9)){
+          updateCurrentSelection();
+        }
+        //Let the third digit be 0-7:
+        else if((selectionDisplayCount == 4)&&(key >= 0 && key <= 7)){
+          updateCurrentSelection();
+          //Selection is valid
+          Serial.print(currentSelection);
+          //Push the new selection in only if they have a credit and the queue is not full:
+          if (creditsIn){
+            if (!isfull()) {
+              push(currentSelection);
+              clearSelection();
+              creditsIn -= 1;
+              updateCredit();
+              currentSelection = 0;
+              digitalWrite(ledYourSelection, HIGH);
+              Serial.println("Removed");
+              return;
+            }
+          }
+          //If they do not have enough credits, then tell them to add more coins:
+          else{
+            digitalWrite(ledAddCoins, LOW);
+          }
+        }
+        //If one of the digits does not match the given criteria, set incorrectSelection:
+        else{
+          digitalWrite(ledResetReselect, LOW);
+          incorrectSelection = 1;
+        }
+
+        ++selectionDisplayCount;
+        if(selectionDisplayCount == 2){++selectionDisplayCount;}
+      }
+    }
+  }
+  //If there is no key or we are still pressing the same key:
+  else {
+    //Increment releaseCount:
+    releaseCount++;
+    //If releaseCount reaches the max, reset so that the key can be pressed again:
+    if (releaseCount >= releaseCountMax) {
+      previousKey = 0;
+      releaseCount = 0;
+    }
+  }
+}
