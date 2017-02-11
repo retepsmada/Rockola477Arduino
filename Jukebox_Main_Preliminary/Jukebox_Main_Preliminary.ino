@@ -18,7 +18,7 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Pin Variables
 
 //Count pulses from opto encoder on carousel until the correct record is reached
-#define controlPulse 0
+#define controlPulse 13
 //Pulse to stop carosel spinning
 #define controlStopSpin A0
 //Take high untill home is low to start spin
@@ -36,13 +36,13 @@ int errorValue = 0;//used to detect if there has been a mechanical error
 //Pins A4 and A5 are automaticaly selected for use with the I2C displays and the multiplex board
 
 //Take high when the selection display is showing the selection just made
-#define ledYourSelection 3
+#define ledYourSelection 1
 //Take high when the selection display is showing the record that is currently playing
-#define ledRecordPlaying 2
+#define ledRecordPlaying 0
 //Take high for a certain amount of time if a button is pressed and unitMemory is less than unitsPerPlay
-#define ledAddCoins 12
+#define ledAddCoins 2
 //Take high when the reset button is pressed and keep high until another button is pressed
-#define ledResetReselect 13
+#define ledResetReselect 3
 
 
 //This is the keymap for the multiplex of all the buttons in the jukebox
@@ -57,7 +57,7 @@ char keys[rows][cols] = {
   {'2','1','0','F',' '}
 };
 byte rowPins[rows] = {4, 5, 6, 7}; //connect to the row pinouts of the keypad
-byte colPins[cols] = {8, 9, 10, 11, 12}; //connect to the column pinouts of the keypad
+byte colPins[cols] = {10, 9, 8, 11, 12}; //connect to the column pinouts of the keypad
 Keypad keys2 = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 
 int previousKey = 0; // Stores last key pressed in int format
