@@ -2054,15 +2054,15 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <junction x="182.88" y="83.82"/>
 <pinref part="U$7" gate="G$1" pin="GND"/>
 <wire x1="127" y1="78.74" x2="124.46" y2="78.74" width="0.1524" layer="91"/>
-<wire x1="124.46" y1="78.74" x2="-10.16" y2="78.74" width="0.1524" layer="91"/>
-<wire x1="-10.16" y1="78.74" x2="-10.16" y2="25.4" width="0.1524" layer="91"/>
-<wire x1="-10.16" y1="25.4" x2="-10.16" y2="-10.16" width="0.1524" layer="91"/>
+<wire x1="124.46" y1="78.74" x2="-2.54" y2="78.74" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="78.74" x2="-2.54" y2="25.4" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="25.4" x2="-2.54" y2="-10.16" width="0.1524" layer="91"/>
 <pinref part="U$1" gate="G$1" pin="GND"/>
-<wire x1="-10.16" y1="-10.16" x2="-10.16" y2="-25.4" width="0.1524" layer="91"/>
-<wire x1="-10.16" y1="-25.4" x2="7.62" y2="-25.4" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="-10.16" x2="-2.54" y2="-25.4" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="-25.4" x2="7.62" y2="-25.4" width="0.1524" layer="91"/>
 <pinref part="U$8" gate="G$1" pin="1"/>
-<wire x1="127" y1="25.4" x2="-10.16" y2="25.4" width="0.1524" layer="91"/>
-<junction x="-10.16" y="25.4"/>
+<wire x1="127" y1="25.4" x2="-2.54" y2="25.4" width="0.1524" layer="91"/>
+<junction x="-2.54" y="25.4"/>
 <wire x1="182.88" y1="121.92" x2="124.46" y2="121.92" width="0.1524" layer="91"/>
 <wire x1="124.46" y1="121.92" x2="124.46" y2="78.74" width="0.1524" layer="91"/>
 <junction x="124.46" y="78.74"/>
@@ -2071,8 +2071,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="182.88" y1="15.24" x2="182.88" y2="27.94" width="0.1524" layer="91"/>
 <junction x="182.88" y="27.94"/>
 <pinref part="J1" gate="JP1" pin="8"/>
-<wire x1="-20.32" y1="-10.16" x2="-10.16" y2="-10.16" width="0.1524" layer="91"/>
-<junction x="-10.16" y="-10.16"/>
+<wire x1="-20.32" y1="-10.16" x2="-2.54" y2="-10.16" width="0.1524" layer="91"/>
+<junction x="-2.54" y="-10.16"/>
 </segment>
 </net>
 <net name="N$13" class="0">
