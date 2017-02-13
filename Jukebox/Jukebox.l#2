@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="yes"/>
@@ -99,6 +99,7 @@
 <pad name="12" x="18" y="0" drill="1" diameter="3" shape="long" rot="R90"/>
 <pad name="13" x="22" y="0" drill="1" diameter="3" shape="long" rot="R90"/>
 <pad name="14" x="26" y="0" drill="1" diameter="3" shape="long" rot="R90"/>
+<text x="-3.81" y="3.81" size="1.27" layer="21">JukeDisplay</text>
 </package>
 <package name="12PINJUKE">
 <pad name="2" x="-18" y="0" drill="1" diameter="3" shape="long" rot="R90"/>
@@ -147,6 +148,7 @@
 <pad name="6" x="6" y="0" drill="1" diameter="3" shape="long" rot="R270"/>
 <pad name="7" x="10" y="0" drill="1" diameter="3" shape="long" rot="R270"/>
 <pad name="8" x="14" y="0" drill="1" diameter="3" shape="long" rot="R270"/>
+<text x="-3.81" y="3.81" size="1.27" layer="21">JukeKeys</text>
 </package>
 <package name="JUKESWITCH">
 <wire x1="-5.5" y1="8" x2="5.5" y2="8" width="0.127" layer="21"/>
@@ -280,7 +282,7 @@
 <wire x1="-20.32" y1="2.54" x2="20.32" y2="2.54" width="0.254" layer="94"/>
 <wire x1="20.32" y1="2.54" x2="20.32" y2="-2.54" width="0.254" layer="94"/>
 <wire x1="20.32" y1="-2.54" x2="-20.32" y2="-2.54" width="0.254" layer="94"/>
-<text x="-7.62" y="7.62" size="1.27" layer="94">Keyboard Jukebox</text>
+<text x="-5.08" y="7.62" size="1.778" layer="94">LED</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -427,6 +429,28 @@
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="8PINJUKE2">
+<gates>
+<gate name="G$1" symbol="8PINJUKE2" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="8PINJUKE">
+<connects>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="6" pad="6"/>
+<connect gate="G$1" pin="7" pad="7"/>
+<connect gate="G$1" pin="ADDCOINS" pad="3"/>
+<connect gate="G$1" pin="NOWPLAYING" pad="4"/>
+<connect gate="G$1" pin="RST" pad="8"/>
+<connect gate="G$1" pin="VCC" pad="1"/>
+<connect gate="G$1" pin="YOURSELECTION" pad="5"/>
 </connects>
 <technologies>
 <technology name=""/>

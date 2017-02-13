@@ -44,7 +44,7 @@ UsedLibrary="C:/Users/Peter/Documents/GitHub/Rockola477Arduino/Jukebox/Jukebox.l
 
 [Win_1]
 Type="Control Panel"
-Loc="-8 -8 1911 1009"
+Loc="0 0 1919 1017"
 State=1
 Number=0
 
