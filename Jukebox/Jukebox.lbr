@@ -76,7 +76,6 @@
 <pad name="3" x="-2.5" y="0" drill="2" diameter="3"/>
 <pad name="2" x="2.5" y="0" drill="2" diameter="3"/>
 <pad name="1" x="0" y="2.5" drill="2" diameter="3"/>
-<text x="-20" y="4.5" size="3.81" layer="21">Juke Headphone</text>
 </package>
 <package name="14PINJUKE">
 <wire x1="0" y1="-3.25" x2="-27.25" y2="-3.25" width="0.127" layer="21"/>

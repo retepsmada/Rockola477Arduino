@@ -188,26 +188,16 @@ http://www.xganon.com</description>
 <pad name="3.3V" x="-10.16" y="24.13" drill="0.8" shape="long" rot="R180"/>
 <pad name="AREF" x="-10.16" y="21.59" drill="0.8" shape="long" rot="R180"/>
 <pad name="5V" x="-10.16" y="-1.27" drill="0.8" shape="long"/>
-<pad name="ICSP2" x="-5.08" y="-7.62" drill="0.8" rot="R90"/>
-<pad name="ICSP4" x="-2.54" y="-7.62" drill="0.8" rot="R90"/>
-<pad name="ICSP6" x="0" y="-7.62" drill="0.8" rot="R90"/>
 <pad name="A4" x="-10.16" y="8.89" drill="0.8" shape="long" rot="R180"/>
 <pad name="A5" x="-10.16" y="6.35" drill="0.8" shape="long" rot="R180"/>
 <pad name="A6" x="-10.16" y="3.81" drill="0.8" shape="long" rot="R180"/>
 <pad name="A7" x="-10.16" y="1.27" drill="0.8" shape="long" rot="R180"/>
-<pad name="ICSP1" x="-5.08" y="-10.16" drill="0.8" rot="R90"/>
-<pad name="ICSP3" x="-2.54" y="-10.16" drill="0.8" rot="R90"/>
-<pad name="ICSP5" x="0" y="-10.16" drill="0.8" rot="R90"/>
 </package>
 </packages>
 <symbols>
 <symbol name="NANO">
 <pin name="3.3V" x="-22.86" y="12.7" visible="pin" length="middle"/>
 <pin name="AREF" x="-22.86" y="10.16" visible="pin" length="middle"/>
-<pin name="ICSP1" x="-10.16" y="-27.94" visible="off" length="point" rot="R270"/>
-<pin name="ICSP2" x="-10.16" y="-25.4" visible="off" length="point" rot="R270"/>
-<pin name="ICSP3" x="-7.62" y="-27.94" visible="off" length="point" rot="R270"/>
-<pin name="ICSP4" x="-7.62" y="-25.4" visible="off" length="point" rot="R270"/>
 <pin name="TX0" x="10.16" y="-20.32" visible="pin" length="middle" rot="R180"/>
 <pin name="RX1" x="10.16" y="-17.78" visible="pin" length="middle" rot="R180"/>
 <pin name="RST1" x="10.16" y="-15.24" visible="pin" length="middle" rot="R180"/>
@@ -236,8 +226,6 @@ http://www.xganon.com</description>
 <pin name="A6" x="-22.86" y="-7.62" visible="pin" length="middle"/>
 <pin name="A5" x="-22.86" y="-5.08" visible="pin" length="middle"/>
 <pin name="A4" x="-22.86" y="-2.54" visible="pin" length="middle"/>
-<pin name="ICSP5" x="-5.08" y="-27.94" visible="off" length="point" rot="R270"/>
-<pin name="ICSP6" x="-5.08" y="-25.4" visible="off" length="point" rot="R270"/>
 <wire x1="-17.78" y1="17.78" x2="-17.78" y2="-30.48" width="0.254" layer="94"/>
 <wire x1="-17.78" y1="-30.48" x2="5.08" y2="-30.48" width="0.254" layer="94"/>
 <wire x1="5.08" y1="-30.48" x2="5.08" y2="17.78" width="0.254" layer="94"/>
@@ -279,12 +267,6 @@ http://www.xganon.com</description>
 <connect gate="G$1" pin="D9" pad="D9"/>
 <connect gate="G$1" pin="GND" pad="GND"/>
 <connect gate="G$1" pin="GND2" pad="GND1"/>
-<connect gate="G$1" pin="ICSP1" pad="ICSP1"/>
-<connect gate="G$1" pin="ICSP2" pad="ICSP2"/>
-<connect gate="G$1" pin="ICSP3" pad="ICSP3"/>
-<connect gate="G$1" pin="ICSP4" pad="ICSP4"/>
-<connect gate="G$1" pin="ICSP5" pad="ICSP5"/>
-<connect gate="G$1" pin="ICSP6" pad="ICSP6"/>
 <connect gate="G$1" pin="RAW" pad="RAW"/>
 <connect gate="G$1" pin="RST" pad="RST"/>
 <connect gate="G$1" pin="RST1" pad="RST1"/>
@@ -348,7 +330,6 @@ http://www.xganon.com</description>
 <pad name="3" x="-2.5" y="0" drill="2" diameter="3"/>
 <pad name="2" x="2.5" y="0" drill="2" diameter="3"/>
 <pad name="1" x="0" y="2.5" drill="2" diameter="3"/>
-<text x="-20" y="4.5" size="3.81" layer="21">Juke Headphone</text>
 </package>
 <package name="10PINJUKE">
 <wire x1="-19.125" y1="3.25" x2="19.125" y2="3.25" width="0.127" layer="21"/>
@@ -2874,10 +2855,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="U$14" library="Jukebox" deviceset="JUKESWITCH" device=""/>
 <part name="TOAMP" library="Jukebox" deviceset="JUKEHEADPHONE" device=""/>
 <part name="AUXOUT" library="Jukebox" deviceset="JUKEHEADPHONE" device=""/>
-<part name="N1" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
-<part name="N2" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
-<part name="A1" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
-<part name="A2" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
+<part name="N1" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
+<part name="N2" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
+<part name="A1" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
+<part name="A2" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
 <part name="TOLIGHT" library="Jukebox" deviceset="JUKEHEADPHONE" device=""/>
 <part name="R15" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
 <part name="D1" library="SparkFun-LED" deviceset="LED" device="5MM"/>

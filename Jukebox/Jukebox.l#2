@@ -118,6 +118,7 @@
 <wire x1="23.25" y1="3.25" x2="23.25" y2="-3.25" width="0.127" layer="21"/>
 <wire x1="23.25" y1="-3.25" x2="-23.25" y2="-3.25" width="0.127" layer="21"/>
 <wire x1="-23.25" y1="-3.25" x2="-23.25" y2="3.25" width="0.127" layer="21"/>
+<text x="-3.81" y="3.81" size="1.27" layer="21">JukePower</text>
 </package>
 <package name="10PINJUKE">
 <wire x1="-19.125" y1="3.25" x2="19.125" y2="3.25" width="0.127" layer="21"/>
