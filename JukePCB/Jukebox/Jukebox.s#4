@@ -3288,6 +3288,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="-22.86" y1="-35.56" x2="-22.86" y2="-7.62" width="0.1524" layer="91"/>
 <pinref part="CONTROL2" gate="G$1" pin="1"/>
 <wire x1="-22.86" y1="-7.62" x2="-27.94" y2="-7.62" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="GND2"/>
+<wire x1="40.64" y1="-20.32" x2="12.7" y2="-20.32" width="0.1524" layer="91"/>
+<wire x1="12.7" y1="-20.32" x2="7.62" y2="-25.4" width="0.1524" layer="91"/>
+<junction x="7.62" y="-25.4"/>
 </segment>
 </net>
 <net name="N$22" class="0">

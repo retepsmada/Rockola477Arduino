@@ -2855,10 +2855,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="U$14" library="Jukebox" deviceset="JUKESWITCH" device=""/>
 <part name="TOAMP" library="Jukebox" deviceset="JUKEHEADPHONE" device=""/>
 <part name="AUXOUT" library="Jukebox" deviceset="JUKEHEADPHONE" device=""/>
-<part name="N1" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
-<part name="N2" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
-<part name="A1" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
-<part name="A2" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
+<part name="N1" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
+<part name="N2" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
+<part name="A1" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
+<part name="A2" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
 <part name="TOLIGHT" library="Jukebox" deviceset="JUKEHEADPHONE" device=""/>
 <part name="R15" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="10k"/>
 <part name="D1" library="SparkFun-LED" deviceset="LED" device="5MM"/>
