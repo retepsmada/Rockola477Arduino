@@ -1082,13 +1082,6 @@ design rules under a new name.</description>
 <vertex x="-66.75" y="-98.5"/>
 </polygon>
 <contactref element="U$8" pad="12"/>
-<wire x1="30.08" y1="28.73" x2="57.5" y2="67" width="0" layer="19" extent="16-16"/>
-<wire x1="14.84" y1="23.65" x2="30.08" y2="28.73" width="0" layer="19" extent="1-1"/>
-<wire x1="8.73" y1="-8" x2="14.84" y2="23.65" width="0" layer="19" extent="1-1"/>
-<wire x1="-30.7" y1="-29" x2="8.73" y2="-8" width="0" layer="19" extent="1-1"/>
-<wire x1="-37" y1="-10" x2="-30.7" y2="-29" width="0" layer="19" extent="1-1"/>
-<wire x1="60.25" y1="-33.75" x2="8.73" y2="-8" width="0" layer="19" extent="1-1"/>
-<wire x1="38.25" y1="-91" x2="60.25" y2="-33.75" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="N$22">
 <contactref element="U$17" pad="3"/>
