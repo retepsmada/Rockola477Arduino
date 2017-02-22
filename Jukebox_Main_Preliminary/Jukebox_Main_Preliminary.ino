@@ -120,8 +120,8 @@ void updateCurrentSelection() {
 
 
 void setup(){
-  Serial.begin(9600);
-  Serial.print("Tast.mp3");
+  //Serial.begin(9600);
+  //Serial.print("Tast.mp3");
   pinMode(ledResetReselect, OUTPUT);
   pinMode(ledAddCoins, OUTPUT);
   pinMode(ledRecordPlaying, OUTPUT);
@@ -186,18 +186,27 @@ void recordSelect(int id){
   recordFromId.side = (digits[2] == 1) ? A : B;
   //This sets the record number to the ones digit times 10 plus the tens digit.
   recordFromId.num = digits[0]*10+digits[1]+1;
-      digitalWrite(controlStartSpin, HIGH);
+      digitalWrite(controlStartSpin, HIGH);{
+        keyboardRead();
+      }
       delay(30);
       if (digitalRead(controlSide) ^ recordFromId.side) {
-        while(digitalRead(controlHome) == HIGH);
+        while(digitalRead(controlHome) == HIGH);{
+          keyboardRead();
+        }
         digitalWrite(controlStartSpin, LOW);
-        while(digitalRead(controlHome) == LOW);
+        while(digitalRead(controlHome) == LOW);{
+          keyboardRead();
+        }
         digitalWrite(controlStartSpin, HIGH);
       }
       
-      while(digitalRead(controlHome) == HIGH);
+      while(digitalRead(controlHome) == HIGH);{
+        keyboardRead();
+      }
       digitalWrite(controlStartSpin, LOW);
       while(recordFromId.num != pulseCount){
+        keyboardRead();
         currentState = digitalRead(controlPulse);// this works
         if (currentState != lastState && currentState == HIGH) {
           ++pulseCount;
@@ -331,11 +340,15 @@ void keyboardRead(){
           if (creditsIn){
             if (!isfull()) {
               push(currentSelection);
+              currentPlaying = currentSelection;
               clearSelection();
               creditsIn -= 1;
               updateCredit();
               currentSelection = 0;
               digitalWrite(ledYourSelection, HIGH);
+              selectionDisplay.print(currentPlaying);
+              selectionDisplay.writeDisplay();
+              digitalWrite(ledRecordPlaying, LOW);
               Serial.println("Removed");
               return;
             }
