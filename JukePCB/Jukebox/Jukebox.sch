@@ -2876,6 +2876,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="J6" library="SparkFun-Connectors" deviceset="CONN_01" device=""/>
 <part name="CONTROL1" library="adafruit" deviceset="1X4" device="-BIG"/>
 <part name="CONTROL2" library="adafruit" deviceset="1X4" device="-BIG"/>
+<part name="A3" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
+<part name="A4" library="SparkFun-Resistors" deviceset="10KOHM" device="-HORIZ-1/4W-1%" value="1k"/>
 </parts>
 <sheets>
 <sheet>
@@ -2923,6 +2925,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <instance part="J6" gate="G$1" x="88.9" y="12.7" rot="R180"/>
 <instance part="CONTROL1" gate="G$1" x="-33.02" y="7.62" rot="R180"/>
 <instance part="CONTROL2" gate="G$1" x="-33.02" y="-5.08" rot="R180"/>
+<instance part="A3" gate="G$1" x="213.36" y="12.7"/>
+<instance part="A4" gate="G$1" x="213.36" y="17.78"/>
 </instances>
 <busses>
 </busses>
@@ -3119,10 +3123,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="246.38" y1="68.58" x2="246.38" y2="25.4" width="0.1524" layer="91"/>
 <pinref part="AUXOUT" gate="G$1" pin="RING"/>
 <wire x1="198.12" y1="25.4" x2="246.38" y2="25.4" width="0.1524" layer="91"/>
-<pinref part="TOLIGHT" gate="G$1" pin="RING"/>
-<wire x1="198.12" y1="12.7" x2="246.38" y2="12.7" width="0.1524" layer="91"/>
 <wire x1="246.38" y1="12.7" x2="246.38" y2="25.4" width="0.1524" layer="91"/>
 <junction x="246.38" y="25.4"/>
+<pinref part="A3" gate="G$1" pin="2"/>
+<wire x1="218.44" y1="12.7" x2="246.38" y2="12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$24" class="0">
@@ -3137,10 +3141,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="251.46" y1="73.66" x2="238.76" y2="73.66" width="0.1524" layer="91"/>
 <pinref part="AUXOUT" gate="G$1" pin="TIP"/>
 <wire x1="198.12" y1="30.48" x2="251.46" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="TOLIGHT" gate="G$1" pin="TIP"/>
-<wire x1="198.12" y1="17.78" x2="251.46" y2="17.78" width="0.1524" layer="91"/>
 <wire x1="251.46" y1="17.78" x2="251.46" y2="30.48" width="0.1524" layer="91"/>
 <junction x="251.46" y="30.48"/>
+<pinref part="A4" gate="G$1" pin="2"/>
+<wire x1="251.46" y1="17.78" x2="218.44" y2="17.78" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$27" class="0">
@@ -3217,8 +3221,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="GND1" gate="1" pin="GND"/>
 <pinref part="TOLIGHT" gate="G$1" pin="GND"/>
 <wire x1="187.96" y1="15.24" x2="182.88" y2="15.24" width="0.1524" layer="91"/>
-<wire x1="182.88" y1="15.24" x2="182.88" y2="0" width="0.1524" layer="91"/>
+<wire x1="182.88" y1="15.24" x2="182.88" y2="2.54" width="0.1524" layer="91"/>
 <junction x="182.88" y="15.24"/>
+<wire x1="182.88" y1="2.54" x2="182.88" y2="0" width="0.1524" layer="91"/>
 <wire x1="182.88" y1="15.24" x2="182.88" y2="27.94" width="0.1524" layer="91"/>
 <junction x="182.88" y="27.94"/>
 <wire x1="182.88" y1="27.94" x2="182.88" y2="40.64" width="0.1524" layer="91"/>
@@ -3229,6 +3234,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <junction x="182.88" y="58.42"/>
 <wire x1="182.88" y1="58.42" x2="182.88" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="182.88" y1="71.12" x2="187.96" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="TOLIGHT" gate="G$1" pin="RING"/>
+<wire x1="198.12" y1="12.7" x2="198.12" y2="2.54" width="0.1524" layer="91"/>
+<wire x1="198.12" y1="2.54" x2="182.88" y2="2.54" width="0.1524" layer="91"/>
+<junction x="182.88" y="2.54"/>
 </segment>
 <segment>
 <pinref part="U$7" gate="G$1" pin="GND"/>
@@ -3408,6 +3417,18 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="U$1" gate="G$1" pin="A3"/>
 <wire x1="-20.32" y1="-17.78" x2="-2.54" y2="-17.78" width="0.1524" layer="91"/>
 <wire x1="-2.54" y1="-17.78" x2="7.62" y2="-7.62" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$38" class="0">
+<segment>
+<pinref part="TOLIGHT" gate="G$1" pin="TIP"/>
+<pinref part="A4" gate="G$1" pin="1"/>
+<wire x1="208.28" y1="17.78" x2="203.2" y2="17.78" width="0.1524" layer="91"/>
+<pinref part="A3" gate="G$1" pin="1"/>
+<wire x1="203.2" y1="17.78" x2="198.12" y2="17.78" width="0.1524" layer="91"/>
+<wire x1="208.28" y1="12.7" x2="203.2" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="203.2" y1="12.7" x2="203.2" y2="17.78" width="0.1524" layer="91"/>
+<junction x="203.2" y="17.78"/>
 </segment>
 </net>
 </nets>
