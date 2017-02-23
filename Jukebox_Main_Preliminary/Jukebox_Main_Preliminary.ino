@@ -186,41 +186,40 @@ void recordSelect(int id){
   recordFromId.side = (digits[2] == 1) ? A : B;
   //This sets the record number to the ones digit times 10 plus the tens digit.
   recordFromId.num = digits[0]*10+digits[1]+1;
-      digitalWrite(controlStartSpin, HIGH);{
-        keyboardRead();
-      }
-      delay(30);
-      if (digitalRead(controlSide) ^ recordFromId.side) {
-        while(digitalRead(controlHome) == HIGH);{
-          keyboardRead();
-        }
-        digitalWrite(controlStartSpin, LOW);
-        while(digitalRead(controlHome) == LOW);{
-          keyboardRead();
-        }
-        digitalWrite(controlStartSpin, HIGH);
-      }
-      
-      while(digitalRead(controlHome) == HIGH);{
-        keyboardRead();
-      }
-      digitalWrite(controlStartSpin, LOW);
-      while(recordFromId.num != pulseCount){
-        keyboardRead();
-        currentState = digitalRead(controlPulse);// this works
-        if (currentState != lastState && currentState == HIGH) {
-          ++pulseCount;
-        }
-        lastState = currentState;
-      }
-      digitalWrite(controlStopSpin, HIGH);
-      delay(50);
-      digitalWrite(controlStopSpin, LOW);
-      selectionDisplay.print(currentPlaying); //just testing this here
-      selectionDisplay.writeDisplay();
-      digitalWrite(ledRecordPlaying, LOW);
-      pulseCount = 0;
-      lastState = 0;
+  digitalWrite(controlStartSpin, HIGH);
+  keyboardRead();
+  delay(30);
+  if (digitalRead(controlSide) ^ recordFromId.side) {
+    while(digitalRead(controlHome) == HIGH);{
+      keyboardRead();
+    }
+    digitalWrite(controlStartSpin, LOW);
+    while(digitalRead(controlHome) == LOW);{
+      keyboardRead();
+    }
+    digitalWrite(controlStartSpin, HIGH);
+  }
+
+  while(digitalRead(controlHome) == HIGH);{
+    keyboardRead();
+  }
+  digitalWrite(controlStartSpin, LOW);
+  while(recordFromId.num != pulseCount){
+    keyboardRead();
+    currentState = digitalRead(controlPulse);// this works
+    if (currentState != lastState && currentState == HIGH) {
+      ++pulseCount;
+    }
+    lastState = currentState;
+  }
+  digitalWrite(controlStopSpin, HIGH);
+  delay(50);
+  digitalWrite(controlStopSpin, LOW);
+  selectionDisplay.print(currentPlaying); //just testing this here
+  selectionDisplay.writeDisplay();
+  digitalWrite(ledRecordPlaying, LOW);
+  pulseCount = 0;
+  lastState = 0;
 }
 //This is the queue code
 
