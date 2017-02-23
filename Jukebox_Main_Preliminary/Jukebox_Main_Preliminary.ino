@@ -187,25 +187,17 @@ void recordSelect(int id){
   //This sets the record number to the ones digit times 10 plus the tens digit.
   recordFromId.num = digits[0]*10+digits[1]+1;
   digitalWrite(controlStartSpin, HIGH);
-  keyboardRead();
   delay(30);
   if (digitalRead(controlSide) ^ recordFromId.side) {
-    while(digitalRead(controlHome) == HIGH);{
-      keyboardRead();
-    }
+    while(digitalRead(controlHome) == HIGH);
     digitalWrite(controlStartSpin, LOW);
-    while(digitalRead(controlHome) == LOW);{
-      keyboardRead();
-    }
+    while(digitalRead(controlHome) == LOW);
     digitalWrite(controlStartSpin, HIGH);
   }
 
-  while(digitalRead(controlHome) == HIGH);{
-    keyboardRead();
-  }
+  while(digitalRead(controlHome) == HIGH);
   digitalWrite(controlStartSpin, LOW);
   while(recordFromId.num != pulseCount){
-    keyboardRead();
     currentState = digitalRead(controlPulse);// this works
     if (currentState != lastState && currentState == HIGH) {
       ++pulseCount;
