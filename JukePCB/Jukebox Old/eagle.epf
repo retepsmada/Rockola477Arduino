@@ -1,0 +1,52 @@
+[Eagle]
+Version="07 06 00"
+Platform="Windows"
+Serial="62191E841E-LSR-WLM-1EL"
+Globals="Globals"
+Desktop="Desktop"
+
+[Globals]
+AutoSaveProject=1
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/Adafruit-Eagle-Library-master/adafruit.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/Arduino-Eagle-Cad-Library-master/Arduino-clone.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/LilyPad-Wearables.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Aesthetics.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Batteries.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Boards.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Capacitors.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Clocks.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Coils.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Connectors.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-DiscreteSemi.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Displays.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Electromechanical.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Fuses.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-GPS.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Hardware.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-IC-Amplifiers.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-IC-Comms.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-IC-Conversion.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-IC-Logic.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-IC-Memory.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-IC-Microcontroller.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-IC-Power.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-IC-Special-Function.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Jumpers.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-LED.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-PowerSymbols.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-RF.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Resistors.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Retired.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Sensors.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/SparkFun-Switches.lbr"
+UsedLibrary="F:/Peter's Stuff/3D Printing - CNC/PCBs/SparkFun-Eagle-Libraries-master/User-Submitted.lbr"
+
+[Win_1]
+Type="Control Panel"
+Loc="0 0 1919 1017"
+State=1
+Number=0
+
+[Desktop]
+Screen="4310 1848"
+Window="Win_1"
